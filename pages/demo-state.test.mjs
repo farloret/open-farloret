@@ -40,3 +40,21 @@ test('browser data allows only user messages, not injected markup', () => {
   assert.equal(chat.messages[0].content, 'hello');
   assert.equal(chat.title, '<script>alert(1)</script>');
 });
+
+test('Pages HTML uses relative paths and only the blank model', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const markup = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(markup, /src="\.\/demo\.js"/);
+  assert.match(markup, /href="\.\/styles\.css"/);
+  assert.match(markup, /<option value="blank" selected>/);
+  assert.doesNotMatch(markup, /(?:src|href)="\//);
+});
+
+test('demo entry point never initiates AI or network requests', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const script = await readFile(new URL('./demo.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(script, /\bfetch\s*\(/);
+  assert.doesNotMatch(script, /\bXMLHttpRequest\b/);
+  assert.doesNotMatch(script, /\bWebSocket\s*\(/);
+  assert.match(script, /appendUserMessage/);
+});
