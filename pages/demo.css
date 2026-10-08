@@ -1,0 +1,40 @@
+/* Small additions to the original Scarlet stylesheet.
+   The shared public/styles.css remains the source of truth for the design. */
+#expand { display: inline-flex; border: 0; border-radius: 6px; padding: 8px; align-items: center; justify-content: center; font-size: 17px; }
+#expand:hover, #collapse:hover { background: #eae4e0; }
+.model-label { color: #a29a95; font-size: 10px; letter-spacing: 1px; font-weight: 700; }
+.stage { white-space: nowrap; }
+#model { max-width: min(290px, 45vw); cursor: pointer; }
+.demo-help { margin: 9px auto 0; font-size: 12px; max-width: 460px; }
+#silent-note { margin: 18px 0; padding-left: 10px; color: #98857d; font-size: 12px; }
+#messages .message { padding-top: 10px; }
+#messages .message.user { margin-left: min(10%, 55px); }
+#chats .chat-row { display: flex; align-items: center; gap: 1px; border-radius: 8px; margin-bottom: 2px; }
+#chats .chat-row.active { background: #e9e3df; }
+#chats .chat-row .chat-open { flex: 1; min-width: 0; width: auto; text-align: left; padding: 11px 8px; }
+#chats .chat-row .chat-action { flex: 0 0 24px; width: 24px; padding: 6px 0; text-align: center; color: #806f6d; opacity: .5; }
+#chats .chat-row:hover .chat-action, #chats .chat-row:focus-within .chat-action { opacity: 1; }
+#chats .chat-row .chat-action.starred { opacity: 1; color: #ac4550; }
+#chats .empty-chats { color: #a29590; font-size: 12px; padding: 10px 9px; line-height: 1.5; }
+#chats button:focus-visible, button:focus-visible, select:focus-visible, #prompt:focus-visible { outline: 2px solid #bc6267; outline-offset: 2px; }
+.foot-label { float: right; font-size: 11px; }
+.foot-actions { display: flex; gap: 2px; margin-top: 16px; }
+.foot .foot-actions button { float: none; color: inherit; background: transparent; border: 0; border-radius: 6px; padding: 7px 9px; font-size: 12px; }
+.foot .foot-actions button:hover { background: #e9e3df; }
+.foot .foot-actions button#theme { margin-left: auto; font-size: 17px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+#notice { min-height: 13px; margin: 5px 0 0; }
+#notice:empty { display: none; }
+body.dark #expand:hover, body.dark #collapse:hover, body.dark .foot .foot-actions button:hover { background: #383234; }
+body.dark #chats .chat-row.active { background: #383234; }
+body.dark #model { color: #e5e0dc; background: transparent; }
+body.dark #model option { color: #242323; }
+@media (max-width:720px) {
+  header { gap: 7px; }
+  #model { max-width: 155px; }
+  .model-label { display:none; }
+  .stage { margin-left: auto; font-size: 8px; padding: 5px; }
+  #welcome { margin-top: clamp(45px, 12vh, 110px); }
+  #chats .chat-row .chat-action { opacity: 1; }
+  .composer-foot span { font-size: 10px; }
+}
