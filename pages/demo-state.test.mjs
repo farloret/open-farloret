@@ -126,7 +126,10 @@ test('new chat uses a restrained square-and-pencil glyph in both apps', async ()
   assert.ok(match, 'new-chat glyph must be present in the shared sprite');
   assert.match(match[1], /M11\.5 4H7/);
   assert.match(match[1], /6\.65-6\.65/);
+  // The pencil is 2.5 units higher; the square outline does not move.
+  assert.equal((match[1].match(/transform="translate\(0 -2\.5\)"/g) || []).length, 2);
+  assert.match(match[1], /^<path d="M11\.5 4H7/);
   assert.doesNotMatch(match[1], /M18 3\.5v7|m-4\.5 2v-4\.6/);
-  assert.match(demo, /ui-icons\.svg\?v=2#compose/);
-  assert.match(selfHosted, /ui-icons\.svg\?v=2#compose/);
+  assert.match(demo, /ui-icons\.svg\?v=3#compose/);
+  assert.match(selfHosted, /ui-icons\.svg\?v=3#compose/);
 });
