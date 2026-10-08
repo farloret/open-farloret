@@ -89,3 +89,30 @@ test('official uploaded Scarlet logo is used unchanged everywhere', async () => 
   assert.ok(style.includes('.identity-logo, .build-logo'));
   assert.doesNotMatch(demo, /class="identity-mark"|class="build-mark"/);
 });
+
+
+test('consistent custom icon family serves both public and self-hosted interfaces', async () => {
+  const sprite = await readFile(new URL('../public/assets/ui-icons.svg', import.meta.url), 'utf8');
+  const demo = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const app = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+  const dynamic = await readFile(new URL('./demo.js', import.meta.url), 'utf8');
+  const server = await readFile(new URL('../server.js', import.meta.url), 'utf8');
+  const ids = ['panel-hide','panel-show','compose','search','close','theme-moon','theme-sun',
+    'download','trash','chevron-down','send','open-arrow','edit','star','star-filled','info','model'];
+  assert.match(sprite, /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg">/);
+  assert.equal((sprite.match(/<symbol id=/g)||[]).length, ids.length);
+  for (const id of ids) {
+    assert.equal((sprite.match(new RegExp('<symbol id="' + id + '"', 'g'))||[]).length, 1, id);
+  }
+  for (const [source, name] of [[demo, 'Pages'], [app, 'self-hosted']]) {
+    const uses = [...source.matchAll(/<use href="(?:\.\/|\/)assets\/ui-icons\.svg#([a-z-]+)"/g)].map(m => m[1]);
+    assert.ok(uses.length >= 5, name + ' should expose control icons');
+    for (const id of uses) assert.ok(ids.includes(id), name + ' references missing ' + id);
+  }
+  assert.match(dynamic, /star-filled/);
+  assert.match(dynamic, /theme-sun/);
+  assert.doesNotMatch(demo, /&nearr;|&times;/);
+  assert.doesNotMatch(app, /☰|◐|↗/);
+  assert.match(server, /image\/svg\+xml/);
+  assert.match(server, /ui-icons\.svg/);
+});

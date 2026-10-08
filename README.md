@@ -2,6 +2,10 @@
 
 Scarlet development stage — a self-hosted, original AI chat workspace inspired by the usability of Open WebUI, without copying its source code, visual assets or identity.
 
+## Interface icons
+
+The custom UI icons live in [`public/assets/ui-icons.svg`](public/assets/ui-icons.svg). Both the public Pages preview and the self-hosted Node interface share these 24×24 glyphs for chat navigation, history actions, appearance, and sending. They are distinct from the official Scarlet brand logo, which is not modified.
+
 ## Scarlet logo
 
 The original official Scarlet PNG is stored at [`public/assets/scarlet-logo.png`](public/assets/scarlet-logo.png) and is reused without alteration for both interfaces and favicons. GitHub Pages copies it into the deployed site.

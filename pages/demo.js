@@ -7,11 +7,8 @@ const $ = id => document.getElementById(id);
 const THEME_KEY = 'open-farloret-scarlet-demo-theme';
 const MOBILE = '(max-width: 760px)';
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const ICON_PATHS = {
-  star: 'm12 2.8 2.8 5.7 6.3.9-4.5 4.4 1.1 6.3-5.7-3-5.6 3 1.1-6.3-4.5-4.4 6.3-.9Z',
-  edit: 'M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7 M16 3l5 5-9 9-4 1 1-4 9-9Z',
-  trash: 'M4 7h16 M10 11v6 M14 11v6 M6 7l1 14h10l1-14 M9 7V4h6v3'
-};
+// All controls share the same hand-drawn Farloret 24px icon sprite.
+const ICON_NAMES = new Set(['star', 'star-filled', 'edit', 'trash']);
 let chats = [];
 let currentId = null;
 
@@ -28,12 +25,15 @@ function save() {
 }
 function currentChat() { return chats.find(chat => chat.id === currentId) || null; }
 function makeIcon(name) {
+  if (!ICON_NAMES.has(name)) throw new Error('Unknown UI icon');
   const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.classList.add('ui-icon');
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('aria-hidden', 'true');
-  const path = document.createElementNS(SVG_NS, 'path');
-  path.setAttribute('d', ICON_PATHS[name]);
-  svg.append(path);
+  svg.setAttribute('focusable', 'false');
+  const use = document.createElementNS(SVG_NS, 'use');
+  use.setAttribute('href', './assets/ui-icons.svg#' + name);
+  svg.append(use);
   return svg;
 }
 function makeButton(text, title, className, action) {
@@ -42,7 +42,7 @@ function makeButton(text, title, className, action) {
   button.title = title;
   button.setAttribute('aria-label', title);
   button.className = className;
-  if (ICON_PATHS[text]) button.append(makeIcon(text));
+  if (ICON_NAMES.has(text)) button.append(makeIcon(text));
   else button.textContent = text;
   button.addEventListener('click', action);
   return button;
@@ -66,7 +66,7 @@ function renderSidebar() {
 
     const actions = document.createElement('div');
     actions.className = 'chat-actions';
-    actions.append(makeButton('star', chat.starred ? 'Unstar chat' : 'Star chat',
+    actions.append(makeButton(chat.starred ? 'star-filled' : 'star', chat.starred ? 'Unstar chat' : 'Star chat',
       'chat-action' + (chat.starred ? ' starred' : ''), () => {
         chat.starred = !chat.starred;
         save();
@@ -197,6 +197,7 @@ function setTheme(isDark) {
   document.body.classList.toggle('dark', isDark);
   $('theme').setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
   $('theme-label').textContent = isDark ? 'Dark' : 'Light';
+  $('theme').querySelector('use').setAttribute('href', './assets/ui-icons.svg#' + (isDark ? 'theme-sun' : 'theme-moon'));
   try { localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); } catch {}
 }
 function toggleSearch(open) {

@@ -16,37 +16,37 @@
     <div class="sidebar-heading">
       <div class="identity"><img class="identity-logo" src="./assets/scarlet-logo.png" width="30" height="30" alt="" aria-hidden="true"><span>Open Farloret</span></div>
       <button id="collapse" class="icon-button" type="button" aria-label="Close sidebar" title="Close sidebar">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2.2"/><path d="M9 4v16"/></svg>
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#panel-hide"></use></svg>
       </button>
     </div>
     <div class="sidebar-tools">
       <button class="nav-action" id="new" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="m16 3 5 5-9 9-4 1 1-4 9-9Z"/></svg>
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#compose"></use></svg>
         <span>New chat</span>
       </button>
       <button class="nav-action" id="search-toggle" type="button" aria-controls="searchbox" aria-expanded="false">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#search"></use></svg>
         <span>Search chats</span><span class="shortcut">Ctrl K</span>
       </button>
       <div id="searchbox" class="searchbox" hidden>
         <label for="search" class="sr-only">Search conversations</label>
         <input id="search" type="search" placeholder="Search conversations" autocomplete="off">
-        <button id="search-close" class="icon-button" type="button" aria-label="Close search">&times;</button>
+        <button id="search-close" class="icon-button" type="button" aria-label="Close search"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#close"></use></svg></button>
       </div>
     </div>
     <div class="history-heading">Recent</div>
     <nav id="chats" class="chats" aria-label="Local conversations"></nav>
     <div class="sidebar-bottom">
       <button id="theme" type="button" class="utility-row" title="Switch appearance">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 15.5A8.5 8.5 0 0 1 8.5 3.4a8.5 8.5 0 1 0 12.1 12.1Z"/></svg>
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#theme-moon"></use></svg>
         <span>Appearance</span><span id="theme-label" class="utility-detail">Light</span>
       </button>
       <button id="export" type="button" class="utility-row" title="Download conversations as JSON">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg>
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#download"></use></svg>
         <span>Export chats</span>
       </button>
       <button id="clear" type="button" class="utility-row" title="Delete local demo chats">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#trash"></use></svg>
         <span>Clear history</span>
       </button>
       <div class="build-info"><img class="build-logo" src="./assets/scarlet-logo.png" width="31" height="31" alt="" aria-hidden="true"><span><strong>Scarlet</strong><small>Public preview &middot; 0.1</small></span></div>
@@ -56,12 +56,12 @@
   <main id="main" class="chat-main is-empty">
     <header class="topbar">
       <button id="expand" class="icon-button" type="button" aria-label="Open sidebar" title="Open sidebar">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2.2"/><path d="M9 4v16"/></svg>
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#panel-show"></use></svg>
       </button>
       <div class="model-picker">
         <label for="model" class="sr-only">Model</label>
         <select id="model" aria-label="Select model"><option value="blank" selected>Blank model</option></select>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#chevron-down"></use></svg>
       </div>
       <div class="topbar-right"><span class="preview-dot" aria-hidden="true"></span><span>Public preview</span></div>
     </header>
@@ -72,16 +72,16 @@
           <p>Try the Open Farloret interface with a blank model.</p>
         </div>
         <div id="messages" class="messages" role="log" aria-label="Messages"></div>
-        <p id="silent-note" class="silent-note" hidden><span class="silent-icon" aria-hidden="true">i</span> The blank model is intentionally silent. It won't generate a reply.</p>
+        <p id="silent-note" class="silent-note" hidden><svg class="ui-icon silent-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#info"></use></svg> The blank model is intentionally silent. It won't generate a reply.</p>
       </section>
       <div class="bottom">
         <form id="composer" class="composer">
           <label class="sr-only" for="prompt">Message the blank model</label>
           <textarea id="prompt" rows="1" maxlength="20000" placeholder="Message Blank" aria-label="Message the blank model"></textarea>
           <div class="composer-toolbar">
-            <span class="composer-model"><span class="composer-circle" aria-hidden="true"></span> Blank model</span>
+            <span class="composer-model"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#model"></use></svg> Blank model</span>
             <button id="send" class="send-button" type="submit" title="Send message" aria-label="Send message" disabled>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>
+              <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#send"></use></svg>
             </button>
           </div>
         </form>
@@ -89,9 +89,9 @@
         <p id="notice" class="notice" role="status" aria-live="polite"></p>
       </div>
       <div id="suggestions" class="suggestions" aria-label="Example prompts">
-        <button type="button" data-prompt="Hello, blank model!">Try a message <span aria-hidden="true">&nearr;</span></button>
-        <button type="button" data-prompt="I am testing this interface.">Test a conversation <span aria-hidden="true">&nearr;</span></button>
-        <button type="button" data-prompt="This will be saved on my device.">Explore history <span aria-hidden="true">&nearr;</span></button>
+        <button type="button" data-prompt="Hello, blank model!">Try a message <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#open-arrow"></use></svg></button>
+        <button type="button" data-prompt="I am testing this interface.">Test a conversation <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#open-arrow"></use></svg></button>
+        <button type="button" data-prompt="This will be saved on my device.">Explore history <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#open-arrow"></use></svg></button>
       </div>
     </div>
   </main>

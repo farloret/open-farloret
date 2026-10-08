@@ -50,7 +50,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   outline: 2px solid var(--text);
   outline-offset: 2px;
 }
-svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ui-icon { display: block; width: 20px; height: 20px; flex: none; fill: none; color: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; border: 0; white-space: nowrap; clip: rect(0, 0, 0, 0); }
 .app { display: flex; height: 100dvh; min-height: 0; }
 
@@ -79,11 +79,11 @@ svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColo
   border-radius: 9px;
   color: var(--muted);
   background: transparent;
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
 }
 .icon-button:hover { background: var(--hover); color: var(--text); }
-.icon-button svg { width: 19px; height: 19px; }
+.icon-button .ui-icon { width: 20px; height: 20px; }
 .sidebar-tools { padding: 0; }
 .nav-action, .utility-row {
   display: flex;
@@ -101,7 +101,7 @@ svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColo
   letter-spacing: -.1px;
 }
 .nav-action:hover, .utility-row:hover { background: var(--hover); }
-.nav-action svg, .utility-row svg { width: 19px; height: 19px; flex: none; stroke-width: 1.7; }
+.nav-action .ui-icon, .utility-row .ui-icon { width: 19px; height: 19px; flex: none; stroke-width: 1.7; }
 .shortcut { margin-left: auto; font-size: 10px; color: var(--subtle); white-space: nowrap; }
 .searchbox { display: flex; align-items: center; padding: 2px 0 5px; }
 .searchbox input {
@@ -125,17 +125,17 @@ svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColo
 .chat-actions { display: flex; flex: none; align-items: center; gap: 0; visibility: hidden; padding-right: 3px; }
 .chat-row:hover .chat-actions, .chat-row:focus-within .chat-actions { visibility: visible; }
 .chat-action {
-  display: grid; place-items: center; width: 25px; height: 28px;
+  display: grid; place-items: center; width: 30px; height: 32px;
   border: 0; background: transparent; border-radius: 6px; color: var(--muted); padding: 4px;
 }
 .chat-action:hover { background: var(--active); color: var(--text); }
-.chat-action svg { width: 15px; height: 15px; stroke-width: 1.8; }
+.chat-action .ui-icon { width: 17px; height: 17px; stroke-width: 1.8; }
 .chat-action.starred { color: var(--text); visibility: visible; }
 .empty-chats { margin: 0; padding: 7px 12px; font-size: 12px; line-height: 1.6; color: var(--subtle); }
 .sidebar-bottom { flex: none; padding-top: 8px; border-top: 1px solid var(--border); }
 .utility-row { min-height: 36px; padding: 7px 11px; font-size: 12px; color: var(--muted); gap: 12px; }
 .utility-row:hover { color: var(--text); }
-.utility-row svg { width: 17px; height: 17px; }
+.utility-row .ui-icon { width: 17px; height: 17px; }
 .utility-detail { margin-left: auto; color: var(--subtle); font-size: 11px; }
 .build-info { display: flex; gap: 11px; align-items: center; padding: 16px 10px 5px; font-size: 12px; }
 .build-info .build-logo { width: 31px; height: 31px; border-radius: 8px; }
@@ -150,7 +150,7 @@ svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColo
 .model-picker:hover { background: var(--hover); }
 .model-picker select { appearance: none; -webkit-appearance: none; border: 0; outline: 0; background: transparent; color: var(--text); padding: 9px 29px 9px 12px; border-radius: 10px; font-weight: 620; font-size: 16px; letter-spacing: -.4px; cursor: pointer; }
 .model-picker select:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
-.model-picker svg { width: 14px; height: 14px; position: absolute; right: 10px; pointer-events: none; stroke-width: 2.2; }
+.model-picker .ui-icon { width: 14px; height: 14px; position: absolute; right: 10px; pointer-events: none; stroke-width: 2.2; }
 .topbar-right { margin-left: auto; display: flex; gap: 9px; align-items: center; font-size: 12px; color: var(--muted); }
 .preview-dot { width: 7px; height: 7px; border-radius: 50%; background: #777; }
 .workspace { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
@@ -162,7 +162,7 @@ svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColo
 .message { display: flex; justify-content: flex-end; margin: 0 0 25px; }
 .message .content { max-width: min(80%, 600px); padding: 11px 16px; border-radius: 20px; background: var(--bubble); color: var(--text); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
 .silent-note { width: 100%; max-width: 760px; padding: 0 4px; margin: 0 auto 25px; color: var(--muted); display: flex; align-items: center; gap: 9px; font-size: 12px; line-height: 1.45; }
-.silent-icon { width: 16px; height: 16px; flex: 0 0 16px; border: 1px solid currentColor; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-style: normal; font-weight: 650; }
+.silent-icon { width: 18px; height: 18px; flex: 0 0 18px; color: var(--muted); }
 .bottom { flex: none; width: 100%; max-width: 802px; margin: 0 auto; padding: 0 20px 12px; }
 .composer { width: 100%; background: var(--composer); border: 1px solid var(--border); border-radius: 26px; box-shadow: var(--shadow); padding: 2px 9px 9px; transition: border-color .14s, box-shadow .14s; }
 .composer:focus-within { border-color: #c5c5c5; box-shadow: 0 4px 16px rgba(0,0,0,.065); }
@@ -172,18 +172,18 @@ body.dark .composer:focus-within { border-color: #5e5e5e; box-shadow: var(--shad
 .composer textarea:focus-visible { outline: none; }
 .composer-toolbar { display: flex; align-items: center; justify-content: space-between; min-height: 31px; padding-left: 12px; }
 .composer-model { font-size: 11px; color: var(--muted); display: flex; gap: 8px; align-items: center; user-select: none; }
-.composer-circle { border-radius: 50%; width: 8px; height: 8px; border: 1.5px solid var(--muted); }
-.send-button { display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; width: 32px; height: 32px; color: var(--button-text); background: var(--button); }
+.composer-model .ui-icon { width: 16px; height: 16px; }
+.send-button { display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; width: 36px; height: 36px; color: var(--button-text); background: var(--button); }
 .send-button:hover:not(:disabled) { filter: brightness(1.22); }
 .send-button:disabled { color: var(--disabled-text); background: var(--disabled); cursor: default; }
-.send-button svg { width: 18px; height: 18px; stroke-width: 2.8; }
+.send-button .ui-icon { width: 18px; height: 18px; stroke-width: 2.8; }
 .disclaimer { margin: 10px 0 0; color: var(--subtle); font-size: 11px; text-align: center; }
 .notice { text-align: center; margin: 7px 0 0; font-size: 12px; color: var(--muted); }
 .notice:empty { display: none; }
 .suggestions { display: none; width: 100%; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 13px 15px 0; }
-.suggestions button { border: 1px solid var(--border); background: var(--page); border-radius: 999px; padding: 9px 13px; font-size: 12px; color: var(--muted); }
+.suggestions button { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--border); background: var(--page); border-radius: 999px; padding: 9px 13px; font-size: 12px; color: var(--muted); }
 .suggestions button:hover { background: var(--hover); color: var(--text); }
-.suggestions button span { margin-left: 5px; font-size: 13px; }
+.suggestions button .ui-icon { width: 14px; height: 14px; margin-left: 5px; }
 
 /* Center the welcome message and composer as one unit. */
 .chat-main.is-empty .workspace { justify-content: center; padding-bottom: clamp(35px, 8vh, 115px); }
