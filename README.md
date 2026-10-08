@@ -2,6 +2,20 @@
 
 Scarlet development stage — a self-hosted, original AI chat workspace inspired by the usability of Open WebUI, without copying its source code, visual assets or identity.
 
+## Try Scarlet in your browser (public demo)
+
+**[Open the Scarlet public UI demo](https://farloret.github.io/open-farloret/)**
+
+The GitHub Pages version is a **static preview**, not the Node.js server. It reuses the application's Scarlet styling and has a single **Blank · No response** model. You can test the chat composer, search, stars, rename/delete, dark mode, and export. Blank deliberately never generates an assistant reply.
+
+Your demo chats are stored only in that browser's local storage. They are not shared with other visitors and no AI APIs are called. Clear browser data to reset the preview.
+
+The Pages preview is built and deployed by [GitHub Actions](.github/workflows/pages.yml) on pushes to \`main\` that change \`pages/\` or \`public/styles.css\`; it can also be run manually.
+
+**One-time setup if Pages is not already enabled:** repository **Settings → Pages → Build and deployment → Source → GitHub Actions**. GitHub's default workflow token cannot enable a disabled Pages site on its own. Then run **Actions → Publish Scarlet demo to GitHub Pages → Run workflow** if needed. The preview URL works only after the first successful Pages deployment.
+
+This demo contains no secrets and does not expose the self-hosted model provider.
+
 ## Run
 
 Requires Node.js 20+ and an Ollama instance or OpenAI-compatible endpoint.
