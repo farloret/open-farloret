@@ -3,71 +3,97 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#faf9f7">
-  <meta name="description" content="Try the Open Farloret Scarlet interface in your browser. Blank model, no AI, no account needed.">
-  <title>Open Farloret · Scarlet Public Demo</title>
-  <link rel="stylesheet" href="./styles.css">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Explore the Open Farloret interface in a free browser-only demo. No model, no account, no AI requests.">
+  <title>Open Farloret - Scarlet Preview</title>
   <link rel="stylesheet" href="./demo.css">
 </head>
 <body>
-  <div class="app">
-    <aside id="sidebar" aria-label="Chat navigation">
-      <div class="brand">
-        <span class="brandmark" aria-hidden="true">F</span>
-        <span>Open Farloret<small>SCARLET DEVELOPMENT</small></span>
-        <button id="collapse" type="button" title="Close sidebar" aria-label="Close sidebar">☰</button>
+<div class="app">
+  <aside id="sidebar" class="sidebar" aria-label="Chat navigation">
+    <div class="sidebar-heading">
+      <div class="identity"><span class="identity-mark" aria-hidden="true">f</span><span>Open Farloret</span></div>
+      <button id="collapse" class="icon-button" type="button" aria-label="Close sidebar" title="Close sidebar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2.2"/><path d="M9 4v16"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-tools">
+      <button class="nav-action" id="new" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="m16 3 5 5-9 9-4 1 1-4 9-9Z"/></svg>
+        <span>New chat</span>
+      </button>
+      <button class="nav-action" id="search-toggle" type="button" aria-controls="searchbox" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+        <span>Search chats</span><span class="shortcut">Ctrl K</span>
+      </button>
+      <div id="searchbox" class="searchbox" hidden>
+        <label for="search" class="sr-only">Search conversations</label>
+        <input id="search" type="search" placeholder="Search conversations" autocomplete="off">
+        <button id="search-close" class="icon-button" type="button" aria-label="Close search">&times;</button>
       </div>
-      <button class="new" id="new" type="button">＋ New chat</button>
-      <input id="search" placeholder="Search conversations" aria-label="Search conversations" autocomplete="off">
-      <div class="section">LOCAL CONVERSATIONS</div>
-      <nav id="chats" aria-label="Saved demo chats"></nav>
-      <div class="foot">
-        <div><span class="dot"></span>Scarlet 0.1 <span class="foot-label">Public demo</span></div>
-        <div class="foot-actions">
-          <button id="export" type="button" title="Export chats as JSON">Export</button>
-          <button id="clear" type="button" title="Clear demo history">Clear</button>
-          <button id="theme" type="button" title="Toggle light or dark theme" aria-label="Toggle theme">◐</button>
-        </div>
+    </div>
+    <div class="history-heading">Recent</div>
+    <nav id="chats" class="chats" aria-label="Local conversations"></nav>
+    <div class="sidebar-bottom">
+      <button id="theme" type="button" class="utility-row" title="Switch appearance">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 15.5A8.5 8.5 0 0 1 8.5 3.4a8.5 8.5 0 1 0 12.1 12.1Z"/></svg>
+        <span>Appearance</span><span id="theme-label" class="utility-detail">Light</span>
+      </button>
+      <button id="export" type="button" class="utility-row" title="Download conversations as JSON">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg>
+        <span>Export chats</span>
+      </button>
+      <button id="clear" type="button" class="utility-row" title="Delete local demo chats">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>
+        <span>Clear history</span>
+      </button>
+      <div class="build-info"><span class="build-mark" aria-hidden="true">f</span><span><strong>Scarlet</strong><small>Public preview &middot; 0.1</small></span></div>
+    </div>
+  </aside>
+  <div id="sidebar-scrim" class="sidebar-scrim" hidden></div>
+  <main id="main" class="chat-main is-empty">
+    <header class="topbar">
+      <button id="expand" class="icon-button" type="button" aria-label="Open sidebar" title="Open sidebar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2.2"/><path d="M9 4v16"/></svg>
+      </button>
+      <div class="model-picker">
+        <label for="model" class="sr-only">Model</label>
+        <select id="model" aria-label="Select model"><option value="blank" selected>Blank model</option></select>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </div>
-    </aside>
-    <main>
-      <header>
-        <button id="expand" type="button" aria-label="Open sidebar" title="Open sidebar">☰</button>
-        <label class="model-label" for="model">MODEL</label>
-        <select id="model" aria-label="Choose demo model">
-          <option value="blank" selected>Blank · No response</option>
-        </select>
-        <span class="stage">PUBLIC UI DEMO</span>
-      </header>
-      <section id="conversation" aria-label="Current conversation">
-        <div id="welcome">
-          <div class="emblem" aria-hidden="true">F</div>
-          <h1>Explore Open Farloret</h1>
-          <p>Scarlet preview. Try the chat interface without an account or an AI provider.</p>
-          <p class="demo-help">The <strong>Blank</strong> model is deliberately silent. Messages stay in this browser.</p>
-          <div class="prompts">
-            <button type="button" data-prompt="Hello, blank model!">Start a conversation ↗</button>
-            <button type="button" data-prompt="Show me how this chat interface works.">Try the composer ↗</button>
-            <button type="button" data-prompt="This is a test chat in Scarlet.">Test chat history ↗</button>
-          </div>
+      <div class="topbar-right"><span class="preview-dot" aria-hidden="true"></span><span>Public preview</span></div>
+    </header>
+    <div class="workspace">
+      <section id="conversation" class="conversation" aria-label="Current conversation">
+        <div id="welcome" class="welcome">
+          <h1>What would you like to explore?</h1>
+          <p>Try the Open Farloret interface with a blank model.</p>
         </div>
-        <div id="messages" role="log" aria-label="Messages"></div>
-        <p id="silent-note" hidden>Blank model is silent — it won't generate a reply.</p>
+        <div id="messages" class="messages" role="log" aria-label="Messages"></div>
+        <p id="silent-note" class="silent-note" hidden><span class="silent-icon" aria-hidden="true">i</span> The blank model is intentionally silent. It won't generate a reply.</p>
       </section>
       <div class="bottom">
-        <form id="composer">
+        <form id="composer" class="composer">
           <label class="sr-only" for="prompt">Message the blank model</label>
-          <textarea id="prompt" rows="1" maxlength="20000" placeholder="Message the blank model…" aria-label="Message the blank model"></textarea>
-          <div class="composer-foot">
-            <span>Enter to send · Shift+Enter for a new line</span>
-            <button id="send" type="submit" title="Send message" aria-label="Send message">↑</button>
+          <textarea id="prompt" rows="1" maxlength="20000" placeholder="Message Blank" aria-label="Message the blank model"></textarea>
+          <div class="composer-toolbar">
+            <span class="composer-model"><span class="composer-circle" aria-hidden="true"></span> Blank model</span>
+            <button id="send" class="send-button" type="submit" title="Send message" aria-label="Send message" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>
+            </button>
           </div>
         </form>
-        <p>Preview only · No requests to an AI server · Your test chats are saved locally</p>
-        <p id="notice" role="status" aria-live="polite"></p>
+        <p class="disclaimer">UI demo only. No AI responses or server requests.</p>
+        <p id="notice" class="notice" role="status" aria-live="polite"></p>
       </div>
-    </main>
-  </div>
-  <script type="module" src="./demo.js"></script>
+      <div id="suggestions" class="suggestions" aria-label="Example prompts">
+        <button type="button" data-prompt="Hello, blank model!">Try a message <span aria-hidden="true">&nearr;</span></button>
+        <button type="button" data-prompt="I am testing this interface.">Test a conversation <span aria-hidden="true">&nearr;</span></button>
+        <button type="button" data-prompt="This will be saved on my device.">Explore history <span aria-hidden="true">&nearr;</span></button>
+      </div>
+    </div>
+  </main>
+</div>
+<script type="module" src="./demo.js"></script>
 </body>
 </html>
