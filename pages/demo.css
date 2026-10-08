@@ -69,21 +69,7 @@ svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColo
 .sidebar.hidden { display: none; }
 .sidebar-heading { display: flex; justify-content: space-between; align-items: center; min-height: 44px; margin: 0 2px 20px 8px; }
 .identity { display: flex; gap: 9px; align-items: center; font-weight: 630; font-size: 14px; letter-spacing: -.35px; white-space: nowrap; }
-.identity-mark, .build-mark {
-  display: inline-grid;
-  flex: none;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  background: var(--text);
-  color: var(--page);
-  border-radius: 9px;
-  font-family: Georgia, serif;
-  font-size: 23px;
-  line-height: 1;
-  font-style: italic;
-  font-weight: 600;
-}
+.identity-logo, .build-logo { display: block; flex: none; width: 30px; height: 30px; object-fit: cover; border-radius: 8px; }
 .icon-button {
   display: grid;
   place-items: center;
@@ -152,7 +138,7 @@ svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColo
 .utility-row svg { width: 17px; height: 17px; }
 .utility-detail { margin-left: auto; color: var(--subtle); font-size: 11px; }
 .build-info { display: flex; gap: 11px; align-items: center; padding: 16px 10px 5px; font-size: 12px; }
-.build-info .build-mark { width: 31px; height: 31px; border-radius: 50%; font-size: 23px; font-style: italic; }
+.build-info .build-logo { width: 31px; height: 31px; border-radius: 8px; }
 .build-info strong { display: block; font-weight: 620; }
 .build-info small { display: block; color: var(--subtle); font-size: 11px; padding-top: 2px; }
 .sidebar-scrim { display: none; }

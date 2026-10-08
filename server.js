@@ -37,9 +37,9 @@ http.createServer(async(req,res)=>{
       }
       return send(res,404,{error:'Unknown endpoint'});
     }
-    const assets={'/':'index.html','/index.html':'index.html','/app.js':'app.js','/styles.css':'styles.css'};
+    const assets={'/':'index.html','/index.html':'index.html','/app.js':'app.js','/styles.css':'styles.css','/assets/scarlet-logo.png':'assets/scarlet-logo.png'};
     const name=assets[url.pathname];if(!name){res.writeHead(404);return res.end('Not found')}
-    res.writeHead(200,{'content-type':name.endsWith('.js')?'text/javascript; charset=utf-8':name.endsWith('.css')?'text/css; charset=utf-8':'text/html; charset=utf-8'});
+    res.writeHead(200,{'content-type':name.endsWith('.png')?'image/png':name.endsWith('.js')?'text/javascript; charset=utf-8':name.endsWith('.css')?'text/css; charset=utf-8':'text/html; charset=utf-8'});
     return res.end(await readFile(join(HERE,'public',name)));
   }catch(err){if(!res.headersSent)return send(res,500,{error:err.message});res.end()}
 }).listen(PORT,HOST,()=>console.log('Open Farloret Scarlet running at http://'+HOST+':'+PORT));

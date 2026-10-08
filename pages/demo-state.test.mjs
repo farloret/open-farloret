@@ -66,3 +66,26 @@ test('redesign is neutral white and gray, with a centered composer', async () =>
   assert.match(css, /\.chat-main\.is-empty \.bottom/);
   assert.doesNotMatch(css, /#(?:ab4650|a25152|ad4952|e7cecb|f3f1ee|faf9f7)/i);
 });
+
+test('official uploaded Scarlet logo is used unchanged everywhere', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { createHash } = await import('node:crypto');
+  const asset = await readFile(new URL('../public/assets/scarlet-logo.png', import.meta.url));
+  assert.equal(asset.length, 4029);
+  assert.equal(createHash('sha256').update(asset).digest('hex'),
+    'c1ef82e1326d3b8c6b7944006982976df37427c0b90f89502d04da2ee5263260');
+  const demo = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const app = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+  const server = await readFile(new URL('../server.js', import.meta.url), 'utf8');
+  const style = await readFile(new URL('./demo.css', import.meta.url), 'utf8');
+  assert.ok(demo.includes('class="identity-logo" src="./assets/scarlet-logo.png"'));
+  assert.ok(demo.includes('class="build-logo" src="./assets/scarlet-logo.png"'));
+  assert.ok(demo.includes('rel="icon" type="image/png" href="./assets/scarlet-logo.png"'));
+  assert.ok(app.includes('class="brand-logo" src="/assets/scarlet-logo.png"'));
+  assert.ok(app.includes('class="welcome-logo" src="/assets/scarlet-logo.png"'));
+  assert.ok(app.includes('rel="icon" type="image/png" href="/assets/scarlet-logo.png"'));
+  assert.ok(server.includes("'/assets/scarlet-logo.png':'assets/scarlet-logo.png'"));
+  assert.ok(server.includes("name.endsWith('.png')?'image/png'"));
+  assert.ok(style.includes('.identity-logo, .build-logo'));
+  assert.doesNotMatch(demo, /class="identity-mark"|class="build-mark"/);
+});

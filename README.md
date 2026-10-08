@@ -2,6 +2,10 @@
 
 Scarlet development stage — a self-hosted, original AI chat workspace inspired by the usability of Open WebUI, without copying its source code, visual assets or identity.
 
+## Scarlet logo
+
+The original official Scarlet PNG is stored at [`public/assets/scarlet-logo.png`](public/assets/scarlet-logo.png) and is reused without alteration for both interfaces and favicons. GitHub Pages copies it into the deployed site.
+
 ## Try Scarlet in your browser (public demo)
 
 **[Open the Scarlet public UI demo](https://farloret.github.io/open-farloret/)**
