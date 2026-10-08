@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf9f7">
+  <meta name="description" content="Try the Open Farloret Scarlet interface in your browser. Blank model, no AI, no account needed.">
+  <title>Open Farloret · Scarlet Public Demo</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./demo.css">
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" aria-label="Chat navigation">
+      <div class="brand">
+        <span class="brandmark" aria-hidden="true">F</span>
+        <span>Open Farloret<small>SCARLET DEVELOPMENT</small></span>
+        <button id="collapse" type="button" title="Close sidebar" aria-label="Close sidebar">☰</button>
+      </div>
+      <button class="new" id="new" type="button">＋ New chat</button>
+      <input id="search" placeholder="Search conversations" aria-label="Search conversations" autocomplete="off">
+      <div class="section">LOCAL CONVERSATIONS</div>
+      <nav id="chats" aria-label="Saved demo chats"></nav>
+      <div class="foot">
+        <div><span class="dot"></span>Scarlet 0.1 <span class="foot-label">Public demo</span></div>
+        <div class="foot-actions">
+          <button id="export" type="button" title="Export chats as JSON">Export</button>
+          <button id="clear" type="button" title="Clear demo history">Clear</button>
+          <button id="theme" type="button" title="Toggle light or dark theme" aria-label="Toggle theme">◐</button>
+        </div>
+      </div>
+    </aside>
+    <main>
+      <header>
+        <button id="expand" type="button" aria-label="Open sidebar" title="Open sidebar">☰</button>
+        <label class="model-label" for="model">MODEL</label>
+        <select id="model" aria-label="Choose demo model">
+          <option value="blank" selected>Blank · No response</option>
+        </select>
+        <span class="stage">PUBLIC UI DEMO</span>
+      </header>
+      <section id="conversation" aria-label="Current conversation">
+        <div id="welcome">
+          <div class="emblem" aria-hidden="true">F</div>
+          <h1>Explore Open Farloret</h1>
+          <p>Scarlet preview. Try the chat interface without an account or an AI provider.</p>
+          <p class="demo-help">The <strong>Blank</strong> model is deliberately silent. Messages stay in this browser.</p>
+          <div class="prompts">
+            <button type="button" data-prompt="Hello, blank model!">Start a conversation ↗</button>
+            <button type="button" data-prompt="Show me how this chat interface works.">Try the composer ↗</button>
+            <button type="button" data-prompt="This is a test chat in Scarlet.">Test chat history ↗</button>
+          </div>
+        </div>
+        <div id="messages" role="log" aria-label="Messages"></div>
+        <p id="silent-note" hidden>Blank model is silent — it won't generate a reply.</p>
+      </section>
+      <div class="bottom">
+        <form id="composer">
+          <label class="sr-only" for="prompt">Message the blank model</label>
+          <textarea id="prompt" rows="1" maxlength="20000" placeholder="Message the blank model…" aria-label="Message the blank model"></textarea>
+          <div class="composer-foot">
+            <span>Enter to send · Shift+Enter for a new line</span>
+            <button id="send" type="submit" title="Send message" aria-label="Send message">↑</button>
+          </div>
+        </form>
+        <p>Preview only · No requests to an AI server · Your test chats are saved locally</p>
+        <p id="notice" role="status" aria-live="polite"></p>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="./demo.js"></script>
+</body>
+</html>
