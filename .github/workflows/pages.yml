@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - 'pages/**'
-      - 'public/styles.css'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -37,11 +36,10 @@ jobs:
         run: |
           mkdir -p _site
           cp pages/index.html pages/demo.js pages/demo-state.mjs pages/demo.css _site/
-          cp public/styles.css _site/styles.css
           touch _site/.nojekyll
           test -s _site/index.html
           test -s _site/demo.js
-          test -s _site/styles.css
+          test -s _site/demo.css
           ! grep -E 'src="/|href="/' _site/index.html
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
