@@ -1,0 +1,61 @@
+name: Publish Scarlet demo to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pages/**'
+      - 'public/styles.css'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test the demo
+        run: |
+          node --check pages/demo.js
+          node --check pages/demo-state.mjs
+          node --test pages/demo-state.test.mjs
+      - name: Assemble static site
+        run: |
+          mkdir -p _site
+          cp pages/index.html pages/demo.js pages/demo-state.mjs pages/demo.css _site/
+          cp public/styles.css _site/styles.css
+          touch _site/.nojekyll
+          test -s _site/index.html
+          test -s _site/demo.js
+          test -s _site/styles.css
+          ! grep -E 'src="/|href="/' _site/index.html
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy public preview
+        id: deployment
+        uses: actions/deploy-pages@v4
