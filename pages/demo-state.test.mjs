@@ -116,3 +116,17 @@ test('consistent custom icon family serves both public and self-hosted interface
   assert.match(server, /image\/svg\+xml/);
   assert.match(server, /ui-icons\.svg/);
 });
+
+
+test('new chat uses a restrained square-and-pencil glyph in both apps', async () => {
+  const sprite = await readFile(new URL('../public/assets/ui-icons.svg', import.meta.url), 'utf8');
+  const demo = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const selfHosted = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+  const match = sprite.match(/<symbol id="compose"[^>]*>([\s\S]*?)<\/symbol>/);
+  assert.ok(match, 'new-chat glyph must be present in the shared sprite');
+  assert.match(match[1], /M11\.5 4H7/);
+  assert.match(match[1], /6\.65-6\.65/);
+  assert.doesNotMatch(match[1], /M18 3\.5v7|m-4\.5 2v-4\.6/);
+  assert.match(demo, /ui-icons\.svg\?v=2#compose/);
+  assert.match(selfHosted, /ui-icons\.svg\?v=2#compose/);
+});
