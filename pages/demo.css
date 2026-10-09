@@ -146,11 +146,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 /* Conversation workspace */
 .chat-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; background: var(--page); }
 .topbar { display: flex; align-items: center; gap: 12px; height: 61px; min-height: 61px; padding: 0 24px; }
-.model-picker { position: relative; display: flex; align-items: center; border-radius: 10px; margin-left: -3px; }
-.model-picker:hover { background: var(--hover); }
-.model-picker select { appearance: none; -webkit-appearance: none; border: 0; outline: 0; background: transparent; color: var(--text); padding: 9px 29px 9px 12px; border-radius: 10px; font-weight: 620; font-size: 16px; letter-spacing: -.4px; cursor: pointer; }
-.model-picker select:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
-.model-picker .ui-icon { width: 14px; height: 14px; position: absolute; right: 10px; pointer-events: none; stroke-width: 2.2; }
 .topbar-right { margin-left: auto; display: flex; gap: 9px; align-items: center; font-size: 12px; color: var(--muted); }
 .preview-dot { width: 7px; height: 7px; border-radius: 50%; background: #777; }
 .workspace { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
@@ -199,7 +194,6 @@ body.dark .composer:focus-within { border-color: #5e5e5e; box-shadow: var(--shad
   .sidebar:not(.hidden) + .sidebar-scrim[hidden] { display: none; }
   .chat-main { width: 100%; }
   .topbar { height: 58px; min-height: 58px; padding: 0 12px; gap: 8px; }
-  .model-picker select { font-size: 15px; }
   .topbar-right { font-size: 11px; }
   .conversation { padding: 20px 14px; }
   .chat-main.is-empty .conversation { padding: 0 18px 27px; }

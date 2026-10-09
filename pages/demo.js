@@ -1,6 +1,7 @@
 import {
   STORAGE_KEY, createChat, appendUserMessage, sortedChats, parseChats
 } from './demo-state.mjs';
+import { createModelPicker } from './model-picker.js';
 
 // Deliberately frontend-only: the public preview NEVER calls an AI or backend.
 const $ = id => document.getElementById(id);
@@ -207,6 +208,13 @@ function toggleSearch(open) {
   else { $('search').value = ''; renderSidebar(); }
 }
 function init() {
+  createModelPicker({
+    root: $('model-picker'),
+    spriteUrl: './assets/ui-icons.svg',
+    selected: 'blank',
+    items: [{value:'blank',label:'Blank model',description:'UI preview · no responses',tag:'Demo'}],
+    footerText: 'Blank model accepts messages but never replies. No AI connection.'
+  });
   chats = parseChats(saved(STORAGE_KEY));
   setTheme(saved(THEME_KEY) === 'dark');
   setSidebarOpen(!window.matchMedia(MOBILE).matches);

@@ -9,6 +9,7 @@
   <link rel="icon" type="image/png" href="./assets/scarlet-logo.png">
   <link rel="apple-touch-icon" href="./assets/scarlet-logo.png">
   <link rel="stylesheet" href="./demo.css">
+  <link rel="stylesheet" href="./model-picker.css">
 </head>
 <body>
 <div class="app">
@@ -58,10 +59,16 @@
       <button id="expand" class="icon-button" type="button" aria-label="Open sidebar" title="Open sidebar">
         <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#panel-show"></use></svg>
       </button>
-      <div class="model-picker">
-        <label for="model" class="sr-only">Model</label>
-        <select id="model" aria-label="Select model"><option value="blank" selected>Blank model</option></select>
-        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#chevron-down"></use></svg>
+      <div class="model-picker" id="model-picker">
+        <button class="model-trigger" id="model-trigger" type="button" role="combobox" aria-label="Choose model" aria-haspopup="listbox" aria-expanded="false" aria-controls="model-options" data-model-trigger>
+          <span class="model-trigger-label" data-model-label>Blank model</span>
+          <svg class="ui-icon model-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#chevron-down"></use></svg>
+        </button>
+        <div class="model-popover" data-model-popup hidden>
+          <div class="model-popover-head"><span>Models</span><span class="model-popover-count" data-model-count></span></div>
+          <div class="model-options" id="model-options" role="listbox" aria-label="Available models" data-model-listbox></div>
+          <div class="model-popover-foot" data-model-footer></div>
+        </div>
       </div>
       <div class="topbar-right"><span class="preview-dot" aria-hidden="true"></span><span>Public preview</span></div>
     </header>

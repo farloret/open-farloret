@@ -1,0 +1,171 @@
+/* Open Farloret model chooser. Shared by the public preview and Node app.
+   Not a native HTML select: the popup is drawn and navigated in-page. */
+.model-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  z-index: 8;
+}
+.model-picker [hidden] { display: none !important; }
+.model-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(350px, 52vw);
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  padding: 6px 10px 6px 12px;
+  background: transparent;
+  color: var(--text, #242424);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 620;
+  letter-spacing: -.35px;
+  transition: background .12s, border-color .12s;
+}
+.model-trigger:hover, .model-trigger[aria-expanded="true"] {
+  background: var(--hover, #f0f0f0);
+}
+.model-trigger[aria-expanded="true"] { border-color: var(--border, #e7e7e7); }
+.model-trigger:focus-visible { outline: 2px solid var(--text, #222); outline-offset: 2px; }
+.model-trigger-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.model-chevron {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  opacity: .7;
+  transition: transform .14s;
+}
+.model-trigger[aria-expanded="true"] .model-chevron { transform: rotate(180deg); }
+.model-popover {
+  --menu-surface: #fff;
+  --menu-ink: #262626;
+  --menu-muted: #858585;
+  --menu-hover: #f3f3f3;
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 0;
+  width: min(356px, calc(100vw - 30px));
+  overflow: hidden;
+  background: var(--menu-surface);
+  color: var(--menu-ink);
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 16px;
+  box-shadow: 0 14px 42px rgba(0,0,0,.13), 0 3px 12px rgba(0,0,0,.035);
+  animation: model-pop-in 120ms ease-out;
+}
+.model-popover-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 17px 17px 11px;
+  font-size: 12px;
+  letter-spacing: .1px;
+  font-weight: 650;
+}
+.model-popover-count { font-size: 11px; font-weight: 450; color: var(--menu-muted); }
+.model-options {
+  max-height: min(330px, 48vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 3px 8px 9px;
+  scrollbar-width: thin;
+}
+.model-option {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 62px;
+  padding: 10px 11px;
+  border-radius: 10px;
+  cursor: pointer;
+  outline: 0;
+  user-select: none;
+}
+.model-option:hover, .model-option.is-active { background: var(--menu-hover); }
+.model-option-emblem {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 37px;
+  height: 37px;
+  border: 1px solid rgba(128,128,128,.14);
+  border-radius: 11px;
+  background: rgba(120,120,120,.065);
+  color: var(--menu-ink);
+}
+.model-option-emblem .ui-icon { width: 19px; height: 19px; }
+.model-option-words { display: flex; flex: 1 1 auto; flex-direction: column; gap: 3px; min-width: 0; }
+.model-option-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 620;
+}
+.model-option-description {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--menu-muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+.model-option-tag {
+  align-self: flex-start;
+  border-radius: 5px;
+  padding: 2px 5px;
+  margin-top: 3px;
+  background: rgba(130,130,130,.09);
+  color: var(--menu-muted);
+  font-size: 10px;
+  font-weight: 550;
+}
+.model-option-check { flex: none; opacity: 0; color: var(--menu-ink); }
+.model-option-check .ui-icon { width: 17px; height: 17px; }
+.model-option.is-selected .model-option-check { opacity: 1; }
+.model-menu-empty {
+  padding: 17px 11px 22px;
+  margin: 0;
+  color: var(--menu-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.model-popover-foot {
+  padding: 12px 17px 14px;
+  border-top: 1px solid rgba(128,128,128,.12);
+  color: var(--menu-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+body.dark .model-popover {
+  --menu-surface: #2a2a2a;
+  --menu-ink: #ededed;
+  --menu-muted: #a6a6a6;
+  --menu-hover: #393939;
+  border-color: #424242;
+  box-shadow: 0 15px 45px rgba(0,0,0,.36);
+}
+body.dark .model-option-emblem { background: rgba(255,255,255,.045); border-color: rgba(255,255,255,.08); }
+@media(max-width: 760px) {
+  .model-trigger { max-width: min(220px, 48vw); min-height: 40px; font-size: 15px; }
+  .model-popover { left: -37px; width: min(356px, calc(100vw - 24px)); }
+}
+@media(prefers-reduced-motion: reduce) {
+  .model-popover { animation: none; }
+  .model-chevron { transition: none; }
+}
+@keyframes model-pop-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

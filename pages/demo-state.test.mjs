@@ -43,7 +43,9 @@ test('public page uses relative assets, single blank model and accessible contro
   const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(html, /href="\.\/demo\.css"/);
   assert.match(html, /src="\.\/demo\.js"/);
-  assert.match(html, /<option value="blank" selected>/);
+  assert.match(html, /role="combobox"/);
+  assert.match(html, /role="listbox"/);
+  assert.doesNotMatch(html, /<select\b/i);
   assert.doesNotMatch(html, /(?:src|href)="\//);
   assert.match(html, /id="sidebar"/);
   assert.match(html, /id="composer"/);
@@ -98,7 +100,7 @@ test('consistent custom icon family serves both public and self-hosted interface
   const dynamic = await readFile(new URL('./demo.js', import.meta.url), 'utf8');
   const server = await readFile(new URL('../server.js', import.meta.url), 'utf8');
   const ids = ['panel-hide','panel-show','compose','search','close','theme-moon','theme-sun',
-    'download','trash','chevron-down','send','open-arrow','edit','star','star-filled','info','model'];
+    'download','trash','chevron-down','send','open-arrow','edit','star','star-filled','info','model','check'];
   assert.match(sprite, /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg">/);
   assert.equal((sprite.match(/<symbol id=/g)||[]).length, ids.length);
   for (const id of ids) {
@@ -132,4 +134,46 @@ test('new chat uses a restrained square-and-pencil glyph in both apps', async ()
   assert.doesNotMatch(match[1], /M18 3\.5v7|m-4\.5 2v-4\.6/);
   assert.match(demo, /ui-icons\.svg\?v=3#compose/);
   assert.match(selfHosted, /ui-icons\.svg\?v=3#compose/);
+});
+
+
+test('both model pickers are custom keyboard-accessible listboxes', async () => {
+  const demo = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const app = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+  for (const html of [demo, app]) {
+    assert.doesNotMatch(html, /<select\b/i);
+    assert.match(html, /role="combobox"/);
+    assert.match(html, /aria-expanded="false"/);
+    assert.match(html, /aria-controls="model-options"/);
+    assert.match(html, /role="listbox"/);
+    assert.match(html, /data-model-popup hidden/);
+    assert.match(html, /model-picker\.css/);
+  }
+  const demoJS = await readFile(new URL('./demo.js', import.meta.url), 'utf8');
+  const appJS = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
+  assert.match(demoJS, /createModelPicker/);
+  assert.match(appJS, /modelPicker\.getValue\(\)/);
+  assert.match(appJS, /modelPicker\.setItems/);
+  assert.doesNotMatch(appJS, /\$\('model'\)/);
+});
+
+test('model options are sanitized and keyboard navigation clamps correctly', async () => {
+  const { normalizeModelOptions, nextModelIndex } = await import('../public/model-picker.js');
+  assert.deepEqual(normalizeModelOptions(['', 'gpt-a', 'gpt-a', '  gpt-b  ', null]).map(x=>x.value), ['gpt-a','gpt-b']);
+  assert.deepEqual(normalizeModelOptions([{value:'demo',label:'Blank model',description:'Silent'}]),[
+    {value:'demo',label:'Blank model',description:'Silent',tag:''}
+  ]);
+  assert.equal(nextModelIndex('ArrowDown',0,3),1);
+  assert.equal(nextModelIndex('ArrowDown',2,3),2);
+  assert.equal(nextModelIndex('ArrowUp',0,3),0);
+  assert.equal(nextModelIndex('Home',2,3),0);
+  assert.equal(nextModelIndex('End',0,3),2);
+  assert.equal(nextModelIndex('PageDown',0,20),8);
+  assert.equal(nextModelIndex('ArrowUp',0,0),-1);
+  const source = await readFile(new URL('../public/model-picker.js', import.meta.url), 'utf8');
+  assert.match(source, /aria-activedescendant/);
+  assert.match(source, /aria-selected/);
+  assert.match(source, /pointerdown/);
+  assert.match(source, /textContent = item\.label/);
+  assert.doesNotMatch(source, /\bfetch\s*\(/);
 });

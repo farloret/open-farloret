@@ -31,6 +31,7 @@ jobs:
       - name: Test the demo
         run: |
           node --check pages/demo.js
+          node --check public/model-picker.js
           node --check pages/demo-state.mjs
           node --test pages/demo-state.test.mjs
       - name: Assemble static site
@@ -38,10 +39,13 @@ jobs:
           mkdir -p _site/assets
           cp public/assets/scarlet-logo.png public/assets/ui-icons.svg _site/assets/
           cp pages/index.html pages/demo.js pages/demo-state.mjs pages/demo.css _site/
+          cp public/model-picker.js public/model-picker.css _site/
           touch _site/.nojekyll
           test -s _site/index.html
           test -s _site/demo.js
           test -s _site/demo.css
+          test -s _site/model-picker.js
+          test -s _site/model-picker.css
           test -s _site/assets/scarlet-logo.png
           test -s _site/assets/ui-icons.svg
           ! grep -E 'src="/|href="/' _site/index.html
