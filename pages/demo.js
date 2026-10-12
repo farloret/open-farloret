@@ -2,6 +2,8 @@ import {
   STORAGE_KEY, createChat, appendUserMessage, sortedChats, parseChats
 } from './demo-state.mjs';
 import { createModelPicker } from './model-picker.js';
+import { createChatSearch } from './chat-search.js';
+import { newChatId, chatIdFromLocation, isChatId } from './chat-id.js';
 
 // Deliberately frontend-only: the public preview NEVER calls an AI or backend.
 const $ = id => document.getElementById(id);
@@ -12,6 +14,7 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const ICON_NAMES = new Set(['star', 'star-filled', 'edit', 'trash']);
 let chats = [];
 let currentId = null;
+let chatSearch = null;
 
 function saved(key) {
   try { return localStorage.getItem(key); } catch { return null; }
@@ -22,6 +25,7 @@ function save() {
     chats = chats.slice(-100);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
     inform('');
+    chatSearch?.refresh();
   } catch { inform('Storage is unavailable, so this chat may not be saved.'); }
 }
 function currentChat() { return chats.find(chat => chat.id === currentId) || null; }
@@ -51,7 +55,7 @@ function makeButton(text, title, className, action) {
 function renderSidebar() {
   const container = $('chats');
   container.replaceChildren();
-  const visible = sortedChats(chats, $('search').value);
+  const visible = sortedChats(chats);
   if (!visible.length) {
     const empty = document.createElement('p');
     empty.className = 'empty-chats';
@@ -142,20 +146,35 @@ function setSidebarOpen(open) {
 function hideSidebarOnMobile() {
   if (window.matchMedia(MOBILE).matches) setSidebarOpen(false);
 }
-function openChat(id) {
-  currentId = chats.some(chat => chat.id === id) ? id : null;
+function setChatLocation(id, push = true) {
+  const url = new URL(window.location.href);
+  if (id && isChatId(id)) url.searchParams.set('chat', id);
+  else url.searchParams.delete('chat');
+  window.history[push ? 'pushState' : 'replaceState'](null, '', url);
+}
+function openChat(id, updateLocation = true) {
+  currentId = chats.some(chat => chat.id === id) && isChatId(id) ? id : null;
+  if (updateLocation) setChatLocation(currentId);
   render();
   hideSidebarOnMobile();
 }
 function newChat() {
+  chatSearch?.close();
   currentId = null;
-  $('search').value = '';
-  toggleSearch(false);
+  setChatLocation(null);
   $('prompt').value = '';
   updateComposer();
   render();
   hideSidebarOnMobile();
   $('prompt').focus();
+}
+function toggleWebPreview() {
+  const button = $('web-search-toggle');
+  const enabled = button.getAttribute('aria-pressed') !== 'true';
+  button.setAttribute('aria-pressed', String(enabled));
+  const note = $('web-search-note');
+  note.hidden = !enabled;
+  note.textContent = enabled ? 'Web Search is an interface preview only. Blank model makes no web requests.' : '';
 }
 function updateComposer() {
   const input = $('prompt');
@@ -168,11 +187,11 @@ function sendMessage() {
   if (!text) return;
   let chat = currentChat();
   if (!chat) {
-    const id = typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID() : String(Date.now()) + '-' + String(Math.random());
+    const id = newChatId();
     chat = createChat(id, text);
     chats.push(chat);
     currentId = id;
+    setChatLocation(id);
   }
   const index = chats.findIndex(item => item.id === currentId);
   chats[index] = appendUserMessage(chat, text);
@@ -201,12 +220,6 @@ function setTheme(isDark) {
   $('theme').querySelector('use').setAttribute('href', './assets/ui-icons.svg#' + (isDark ? 'theme-sun' : 'theme-moon'));
   try { localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); } catch {}
 }
-function toggleSearch(open) {
-  $('searchbox').hidden = !open;
-  $('search-toggle').setAttribute('aria-expanded', String(open));
-  if (open) $('search').focus();
-  else { $('search').value = ''; renderSidebar(); }
-}
 function init() {
   createModelPicker({
     root: $('model-picker'),
@@ -216,12 +229,25 @@ function init() {
     footerText: 'Blank model accepts messages but never replies. No AI connection.'
   });
   chats = parseChats(saved(STORAGE_KEY));
+  // Save migrated legacy IDs once so they remain stable across refreshes.
+  save();
+  chatSearch = createChatSearch({
+    dialog: $('search-dialog'),
+    trigger: $('search-toggle'),
+    input: $('search'),
+    results: $('search-results'),
+    closeButton: $('search-close'),
+    loadChats: async () => chats,
+    onChoose: id => openChat(id)
+  });
+  const bookmarked = chatIdFromLocation(window.location.href);
+  currentId = bookmarked && chats.some(chat => chat.id === bookmarked) ? bookmarked : null;
+  if (bookmarked && !currentId) setChatLocation(null, false);
   setTheme(saved(THEME_KEY) === 'dark');
   setSidebarOpen(!window.matchMedia(MOBILE).matches);
   $('new').addEventListener('click', newChat);
-  $('search-toggle').addEventListener('click', () => toggleSearch($('searchbox').hidden));
-  $('search-close').addEventListener('click', () => toggleSearch(false));
-  $('search').addEventListener('input', renderSidebar);
+  $('compose-plus').addEventListener('click', newChat);
+  $('web-search-toggle').addEventListener('click', toggleWebPreview);
   $('expand').addEventListener('click', () => setSidebarOpen(true));
   $('collapse').addEventListener('click', () => setSidebarOpen(false));
   $('sidebar-scrim').addEventListener('click', () => setSidebarOpen(false));
@@ -238,14 +264,10 @@ function init() {
     }
   });
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape') {
-      if (!$('searchbox').hidden) toggleSearch(false);
-      else hideSidebarOnMobile();
-    }
+    if (event.key === 'Escape' && !$('search-dialog').open) hideSidebarOnMobile();
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
-      setSidebarOpen(true);
-      toggleSearch(true);
+      chatSearch.open();
     }
   });
   for (const button of document.querySelectorAll('[data-prompt]')) {
@@ -262,6 +284,10 @@ function init() {
     currentId = null;
     save();
     render();
+  });
+  window.addEventListener('popstate', () => {
+    const id = chatIdFromLocation(window.location.href);
+    openChat(id, false);
   });
   window.addEventListener('resize', () => {
     if (!window.matchMedia(MOBILE).matches) $('sidebar-scrim').hidden = true;

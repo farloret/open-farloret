@@ -10,6 +10,7 @@
   <link rel="apple-touch-icon" href="./assets/scarlet-logo.png">
   <link rel="stylesheet" href="./demo.css">
   <link rel="stylesheet" href="./model-picker.css">
+  <link rel="stylesheet" href="./composer-toolbar.css">
 </head>
 <body>
 <div class="app">
@@ -29,11 +30,7 @@
         <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#search"></use></svg>
         <span>Search chats</span><span class="shortcut">Ctrl K</span>
       </button>
-      <div id="searchbox" class="searchbox" hidden>
-        <label for="search" class="sr-only">Search conversations</label>
-        <input id="search" type="search" placeholder="Search conversations" autocomplete="off">
-        <button id="search-close" class="icon-button" type="button" aria-label="Close search"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#close"></use></svg></button>
-      </div>
+      
     </div>
     <div class="history-heading">Recent</div>
     <nav id="chats" class="chats" aria-label="Local conversations"></nav>
@@ -59,17 +56,7 @@
       <button id="expand" class="icon-button" type="button" aria-label="Open sidebar" title="Open sidebar">
         <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#panel-show"></use></svg>
       </button>
-      <div class="model-picker" id="model-picker">
-        <button class="model-trigger" id="model-trigger" type="button" role="combobox" aria-label="Choose model" aria-haspopup="listbox" aria-expanded="false" aria-controls="model-options" data-model-trigger>
-          <span class="model-trigger-label" data-model-label>Blank model</span>
-          <svg class="ui-icon model-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#chevron-down"></use></svg>
-        </button>
-        <div class="model-popover" data-model-popup hidden>
-          <div class="model-popover-head"><span>Models</span><span class="model-popover-count" data-model-count></span></div>
-          <div class="model-options" id="model-options" role="listbox" aria-label="Available models" data-model-listbox></div>
-          <div class="model-popover-foot" data-model-footer></div>
-        </div>
-      </div>
+      <span class="topbar-app">Open Farloret</span>
       <div class="topbar-right"><span class="preview-dot" aria-hidden="true"></span><span>Public preview</span></div>
     </header>
     <div class="workspace">
@@ -86,11 +73,23 @@
           <label class="sr-only" for="prompt">Message the blank model</label>
           <textarea id="prompt" rows="1" maxlength="20000" placeholder="Message Blank" aria-label="Message the blank model"></textarea>
           <div class="composer-toolbar">
-            <span class="composer-model"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#model"></use></svg> Blank model</span>
-            <button id="send" class="send-button" type="submit" title="Send message" aria-label="Send message" disabled>
-              <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#send"></use></svg>
-            </button>
+            <button type="button" id="compose-plus" class="composer-plus" aria-label="New chat" title="New chat"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#plus"></use></svg></button>
+            <span class="composer-spacer"></span>
+            <button type="button" id="web-search-toggle" class="web-search-button" aria-pressed="false" title="Preview Web Search mode"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#globe"></use></svg><span>Search</span></button>
+            <div class="model-picker" id="model-picker">
+        <button class="model-trigger" id="model-trigger" type="button" role="combobox" aria-label="Choose model" aria-haspopup="listbox" aria-expanded="false" aria-controls="model-options" data-model-trigger>
+          <span class="model-trigger-label" data-model-label>Blank model</span>
+          <svg class="ui-icon model-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#chevron-down"></use></svg>
+        </button>
+        <div class="model-popover" data-model-popup hidden>
+          <div class="model-popover-head"><span>Models</span><span class="model-popover-count" data-model-count></span></div>
+          <div class="model-options" id="model-options" role="listbox" aria-label="Available models" data-model-listbox></div>
+          <div class="model-popover-foot" data-model-footer></div>
+        </div>
+      </div>
+            <button id="send" class="send-button" type="submit" title="Send message" aria-label="Send message" disabled><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#send"></use></svg></button>
           </div>
+          <p id="web-search-note" role="status" hidden></p>
         </form>
         <p class="disclaimer">UI demo only. No AI responses or server requests.</p>
         <p id="notice" class="notice" role="status" aria-live="polite"></p>
@@ -103,6 +102,18 @@
     </div>
   </main>
 </div>
+<dialog id="search-dialog" class="chat-search-dialog" aria-labelledby="chat-search-heading">
+  <div class="chat-search-head">
+    <strong id="chat-search-heading">Search conversations</strong>
+    <button id="search-close" class="chat-search-close" type="button" aria-label="Close conversation search"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#close"></use></svg></button>
+  </div>
+  <label class="chat-search-field">
+    <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#search"></use></svg>
+    <input id="search" type="search" placeholder="Search titles and messages…" aria-label="Search your conversations" autocomplete="off">
+  </label>
+  <div class="chat-search-results" id="search-results" aria-live="polite"></div>
+  <div class="chat-search-hint">Press Enter to open a chat · Esc to close · Ctrl K to search</div>
+</dialog>
 <script type="module" src="./demo.js"></script>
 </body>
 </html>

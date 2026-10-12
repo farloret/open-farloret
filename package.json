@@ -1,6 +1,6 @@
 {
   "name": "open-farloret",
-  "version": "0.1.0-scarlet",
+  "version": "0.2.0-scarlet",
   "private": true,
   "type": "module",
   "engines": {
@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node --test pages/demo-state.test.mjs tests/server.test.mjs"
   }
 }

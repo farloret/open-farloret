@@ -20,7 +20,7 @@ test('search is case-insensitive and starred chats are first', () => {
   const a = { ...createChat('a', 'Modern Scarlet', 5), starred: true };
   const b = createChat('b', 'scarlet palette', 9);
   const c = createChat('c', 'not a match', 11);
-  assert.deepEqual(sortedChats([b,c,a],'SCARLET').map(chat => chat.id), ['a','b']);
+  assert.deepEqual(sortedChats([b,c,a],'SCARLET').map(chat => chat.title), ['Modern Scarlet','scarlet palette']);
 });
 
 test('malformed browser data loads safely', () => {
@@ -86,8 +86,8 @@ test('official uploaded Scarlet logo is used unchanged everywhere', async () => 
   assert.ok(app.includes('class="brand-logo" src="/assets/scarlet-logo.png"'));
   assert.ok(app.includes('class="welcome-logo" src="/assets/scarlet-logo.png"'));
   assert.ok(app.includes('rel="icon" type="image/png" href="/assets/scarlet-logo.png"'));
-  assert.ok(server.includes("'/assets/scarlet-logo.png':'assets/scarlet-logo.png'"));
-  assert.ok(server.includes("name.endsWith('.png')?'image/png'"));
+  assert.match(server, /['"]\/assets\/scarlet-logo\.png['"]:\s*['"]assets\/scarlet-logo\.png['"]/);
+  assert.match(server, /name\.endsWith\('\.png'\)\s*\?\s*'image\/png'/);
   assert.ok(style.includes('.identity-logo, .build-logo'));
   assert.doesNotMatch(demo, /class="identity-mark"|class="build-mark"/);
 });
@@ -100,7 +100,7 @@ test('consistent custom icon family serves both public and self-hosted interface
   const dynamic = await readFile(new URL('./demo.js', import.meta.url), 'utf8');
   const server = await readFile(new URL('../server.js', import.meta.url), 'utf8');
   const ids = ['panel-hide','panel-show','compose','search','close','theme-moon','theme-sun',
-    'download','trash','chevron-down','send','open-arrow','edit','star','star-filled','info','model','check'];
+    'download','trash','chevron-down','send','open-arrow','edit','star','star-filled','info','model','check','plus','globe'];
   assert.match(sprite, /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg">/);
   assert.equal((sprite.match(/<symbol id=/g)||[]).length, ids.length);
   for (const id of ids) {
@@ -176,4 +176,87 @@ test('model options are sanitized and keyboard navigation clamps correctly', asy
   assert.match(source, /pointerdown/);
   assert.match(source, /textContent = item\.label/);
   assert.doesNotMatch(source, /\bfetch\s*\(/);
+});
+
+
+test('new conversations and migrated preview conversations always use UUID v4 IDs', async () => {
+  const { isChatId, newChatId, chatIdFromLocation } = await import('../public/chat-id.js');
+  const first = newChatId(), second = newChatId();
+  assert.ok(isChatId(first));
+  assert.ok(isChatId(second));
+  assert.notEqual(first,second);
+  assert.ok(isChatId(createChat('old-timestamp-id','Hello').id));
+  assert.ok(isChatId(createChat(first,'Hello').id));
+  const migrated = parseChats(JSON.stringify([
+    {id:'old-42', title:'First', updatedAt:1, messages:[{role:'user',content:'remember me'}]},
+    {id:'old-42', title:'Second', updatedAt:2, messages:[]},
+    {id:first, title:'Valid ID', updatedAt:3, messages:[]}
+  ]));
+  assert.equal(migrated.length,3);
+  assert.equal(new Set(migrated.map(x=>x.id)).size,3);
+  assert.ok(migrated.every(x=>isChatId(x.id)));
+  assert.equal(migrated[0].messages[0].content,'remember me');
+  assert.equal(chatIdFromLocation('https://farloret.github.io/open-farloret/?chat='+first),first);
+  assert.equal(chatIdFromLocation('https://farloret.github.io/open-farloret/?chat=invalid'),null);
+});
+
+test('search popup searches conversation text and does not rely on the sidebar text field', async () => {
+  const { matchingChats } = await import('../public/chat-search.js');
+  const chats=[
+    {id:'1',title:'Linux setup',updatedAt:2, messages:[{role:'user',content:'Install ubuntu'}]},
+    {id:'2',title:'Car physics',updatedAt:1, messages:[{role:'user',content:'What is suspension?'}]},
+    {id:'3',title:'Other',updatedAt:3, messages:[]}
+  ];
+  assert.deepEqual(matchingChats(chats,'suspension').map(x=>x.title),['Car physics']);
+  assert.deepEqual(matchingChats(chats,'UBUNTU').map(x=>x.title),['Linux setup']);
+  assert.equal(matchingChats(chats,'not found').length,0);
+  const source=await readFile(new URL('../public/chat-search.js',import.meta.url),'utf8');
+  assert.match(source,/showModal\(\)/);
+  assert.match(source,/dialog\.close\(\)/);
+  assert.match(source,/textContent = chat\.title/);
+});
+
+test('both interfaces move the model selector beside Web Search in the bottom toolbar', async () => {
+  const htmls = [
+    await readFile(new URL('./index.html',import.meta.url),'utf8'),
+    await readFile(new URL('../public/index.html',import.meta.url),'utf8')
+  ];
+  for(const html of htmls){
+    const composer=html.indexOf('id="composer"');
+    const web=html.indexOf('id="web-search-toggle"');
+    const model=html.indexOf('id="model-picker"');
+    const send=html.indexOf('id="send"');
+    assert.ok(composer>=0 && composer<web && web<model && model<send);
+    assert.match(html,/id="web-search-toggle"[^>]*aria-pressed="false"/);
+    assert.match(html,/id="compose-plus"/);
+    assert.match(html,/id="search-dialog"/);
+    assert.match(html,/aria-labelledby="chat-search-heading"/);
+    assert.match(html,/id="search-results"/);
+    assert.match(html,/id="search" type="search"/);
+    assert.doesNotMatch(html, /id="searchbox"/);
+    assert.match(html,/composer-toolbar\.css/);
+  }
+});
+
+test('sidebar has animated off-canvas transitions with reduced-motion support', async () => {
+  const source=await readFile(new URL('../public/composer-toolbar.css',import.meta.url),'utf8');
+  assert.match(source, /transition: flex-basis 260ms/);
+  assert.match(source, /transform: translateX\(-105%\)/);
+  assert.match(source, /visibility: hidden/);
+  assert.match(source, /prefers-reduced-motion: reduce/);
+  assert.match(source, /\.composer \.model-popover \{\s*top: auto;/);
+  assert.match(source, /bottom: calc\(100% \+ 11px\)/);
+});
+
+test('public Blank-model search control never performs a real web request', async () => {
+  const script=await readFile(new URL('./demo.js',import.meta.url),'utf8');
+  assert.match(script,/toggleWebPreview/);
+  assert.match(script,/Blank model makes no web requests/);
+  assert.doesNotMatch(script, /\bfetch\s*\(/);
+  const native=await readFile(new URL('../public/app.js',import.meta.url),'utf8');
+  const server=await readFile(new URL('../server.js',import.meta.url),'utf8');
+  assert.match(native,/api\('\/web-search'/);
+  assert.match(server,/BRAVE_SEARCH_API_KEY/);
+  assert.match(server,/X-Subscription-Token/);
+  assert.match(server,/persist\(\)/);
 });

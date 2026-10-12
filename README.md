@@ -2,6 +2,26 @@
 
 Scarlet development stage — a self-hosted, original AI chat workspace inspired by the usability of Open WebUI, without copying its source code, visual assets or identity.
 
+## Scarlet 0.2: composer, search and navigation
+
+The message composer uses a compact horizontal action bar inspired by current chat interfaces, with **New chat (+)**, **Search**, the **model selector**, and **Send**. The model menu opens *above* the composer, not as a browser-native dropdown.
+
+**Search chats** (sidebar or **Ctrl/Cmd+K**) opens a keyboard-accessible popup that searches titles and message text. The sidebar animates open/closed, supports an off-canvas mobile layout, and respects reduced-motion preferences.
+
+Both variants assign **cryptographically secure UUID v4 IDs** to new conversations. Legacy demo IDs are migrated automatically. URLs include a `?chat=<uuid>` parameter when a conversation is selected. The GitHub Pages preview stores chats in your browser; the self-hosted Node app now persists them in `.data/chats.json` between restarts (override with `FARLORET_DATA_DIR`).
+
+### Web Search
+
+The **public GitHub Pages demo** is intentionally a **UI-only preview**: Search is a visual toggle, and the Blank model never connects to an AI or search API or generates an answer.
+
+In the **self-hosted Node app**, web search is functional when you configure a [Brave Search API](https://api-dashboard.search.brave.com/app/documentation/web-search) key:
+
+```sh
+BRAVE_SEARCH_API_KEY=your-key npm start
+```
+
+When enabled, Farloret queries Brave server-side, displays the source links near the response, and passes result excerpts to the model as untrusted context. The key remains on the server. Without a key, the Search button explains how to enable the feature rather than pretending to search.
+
 ## Custom model selector
 
 Both the public preview and Node app use an original in-page model menu instead of the browser's native select popup. Keyboard controls include arrows, Home/End, Enter/Space, Escape, Tab and type-to-search. Model names are rendered as text, and the self-hosted app still discovers live provider models. The public preview contains only the silent Blank model.
@@ -48,6 +68,6 @@ OPENAI_BASE_URL=https://example.com/v1 OPENAI_API_KEY=your-key npm start
 
 Features: responsive sidebar, searchable conversations, original scarlet branding, light/dark theme, model discovery, streaming AI responses, and a server-side proxy that keeps provider API keys off the client.
 
-**Limitations:** This first GitHub bootstrap uses in-memory conversations (they are lost on restart). No multi-user authentication. Bind to loopback by default. Do not expose publicly without authentication and TLS. This is early-stage software.
+**Limitations:** No multi-user authentication is implemented. Bind to loopback by default; do not expose the self-hosted app publicly without authentication and TLS. GitHub Pages is a static preview and cannot perform AI or web searches. This is early-stage software.
 
 License: MIT (see LICENSE).

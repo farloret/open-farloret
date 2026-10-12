@@ -6,6 +6,11 @@ on:
     paths:
       - 'pages/**'
       - 'public/assets/**'
+      - 'public/chat-id.js'
+      - 'public/chat-search.js'
+      - 'public/composer-toolbar.css'
+      - 'public/model-picker.css'
+      - 'public/model-picker.js'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -28,24 +33,35 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Test the demo
+      - name: Test Scarlet preview and self-hosted server
         run: |
           node --check pages/demo.js
-          node --check public/model-picker.js
           node --check pages/demo-state.mjs
-          node --test pages/demo-state.test.mjs
+          node --check public/model-picker.js
+          node --check public/chat-id.js
+          node --check public/chat-search.js
+          node --check public/app.js
+          node --check server.js
+          npm test
       - name: Assemble static site
         run: |
           mkdir -p _site/assets
           cp public/assets/scarlet-logo.png public/assets/ui-icons.svg _site/assets/
           cp pages/index.html pages/demo.js pages/demo-state.mjs pages/demo.css _site/
           cp public/model-picker.js public/model-picker.css _site/
+          cp public/chat-id.js public/chat-search.js public/composer-toolbar.css _site/
+          # Pages moves the preview to the root; resolve the UUID module there.
+          sed -i "s#../public/chat-id.js#./chat-id.js#g" _site/demo-state.mjs
           touch _site/.nojekyll
           test -s _site/index.html
           test -s _site/demo.js
           test -s _site/demo.css
           test -s _site/model-picker.js
           test -s _site/model-picker.css
+          test -s _site/chat-id.js
+          test -s _site/chat-search.js
+          test -s _site/composer-toolbar.css
+          ! grep -F "../public/chat-id.js" _site/demo-state.mjs
           test -s _site/assets/scarlet-logo.png
           test -s _site/assets/ui-icons.svg
           ! grep -E 'src="/|href="/' _site/index.html

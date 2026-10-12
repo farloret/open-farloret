@@ -1,0 +1,290 @@
+/* Scarlet 0.2: chat composer, searchable history popup, animated sidebar.
+   Shared by GitHub Pages and self-hosted app. No external fonts or libraries. */
+.topbar-app { font-size: 15px; font-weight: 610; letter-spacing: -.35px; color: var(--text, #222); }
+.composer { position: relative; overflow: visible; }
+.composer-toolbar, .composer-foot {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  justify-content: flex-end;
+  min-height: 43px;
+  padding: 1px 3px;
+}
+.composer-toolbar .model-picker, .composer-foot .model-picker {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  z-index: 20;
+}
+.composer .model-trigger {
+  min-height: 36px;
+  max-width: min(210px, 33vw);
+  padding: 6px 7px 6px 10px;
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: -.1px;
+  gap: 6px;
+  border-radius: 999px;
+}
+.composer .model-chevron { width: 14px; height: 14px; }
+.composer .model-popover {
+  top: auto;
+  bottom: calc(100% + 11px);
+  left: auto;
+  right: -24px;
+  width: min(350px, calc(100vw - 32px));
+  z-index: 40;
+}
+.composer-spacer { flex: 1 1 auto; min-width: 0; }
+.composer-plus, .web-search-button {
+  display: inline-flex;
+  flex: none;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text, #262626);
+  background: transparent;
+  transition: background .15s ease, transform .15s ease;
+  white-space: nowrap;
+}
+.composer-plus {
+  width: 36px;
+  padding: 0;
+  margin-left: 2px;
+}
+.composer-plus:hover, .web-search-button:hover, .web-search-button[aria-pressed="true"] {
+  background: var(--hover, #efefef);
+}
+.web-search-button[aria-pressed="true"] { box-shadow: inset 0 0 0 1px var(--border, #ddd); }
+.composer-plus .ui-icon { width: 20px; height: 20px; }
+.web-search-button .ui-icon { width: 17px; height: 17px; }
+.web-search-button span { font-size: 12px; font-weight: 570; }
+.composer .send-button, .composer #send {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  background: #5cd575;
+  color: #14321c;
+}
+.composer #send:hover:not(:disabled) { background: #49c66a; filter: none; }
+.composer #send:disabled { background: var(--disabled, #e9e9e9); color: var(--disabled-text, #969696); }
+.composer .send-button .ui-icon, .composer #send .ui-icon { width: 19px; height: 19px; }
+.composer textarea { scrollbar-width: thin; }
+#web-search-note:not([hidden]) {
+  display: block;
+  margin: 4px 12px 5px;
+  color: var(--muted, #777);
+  font-size: 11px;
+}
+#web-search-note[hidden] { display: none !important; }
+
+/* Popup for conversation searching; showModal makes the background inert. */
+.chat-search-dialog {
+  width: min(540px, calc(100vw - 24px));
+  max-height: min(520px, 80dvh);
+  margin: min(15vh, 130px) auto auto;
+  padding: 0;
+  color: var(--text, #222);
+  background: var(--page, white);
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 17px;
+  box-shadow: 0 24px 72px rgba(0,0,0,.20), 0 6px 20px rgba(0,0,0,.09);
+  overflow: hidden;
+  animation: farloret-dialog-in 160ms cubic-bezier(.2,.8,.2,1);
+}
+.chat-search-dialog::backdrop {
+  background: rgba(18,18,20,.39);
+  backdrop-filter: blur(4px);
+}
+.chat-search-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 19px 10px;
+}
+.chat-search-head strong { font-size: 15px; font-weight: 620; }
+.chat-search-close {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--muted, #777);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+}
+.chat-search-close:hover { background: var(--hover, #eee); }
+.chat-search-close .ui-icon { width: 19px; height: 19px; }
+.chat-search-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 15px 11px;
+  padding: 0 11px;
+  border: 1px solid var(--border, #e5e5e5);
+  border-radius: 11px;
+  background: var(--composer, #fff);
+}
+.chat-search-field:focus-within { border-color: var(--muted, #999); }
+.chat-search-field .ui-icon { width: 19px; height: 19px; color: var(--muted, #777); }
+.chat-search-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text, #222);
+  padding: 14px 0;
+  font-size: 14px;
+}
+.chat-search-field input:focus-visible { outline: none; }
+.chat-search-results {
+  max-height: min(350px, 49dvh);
+  overflow-y: auto;
+  padding: 4px 10px 12px;
+}
+.chat-search-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 4px;
+  padding: 12px 13px;
+  background: transparent;
+  color: var(--text,#222);
+  border: 0;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+.chat-search-row:hover, .chat-search-row:focus-visible { background: var(--hover,#eee); }
+.chat-search-row-title { font-size: 13px; font-weight: 610; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-search-row-preview { font-size: 11px; color: var(--muted,#888); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-search-status { margin: 0; padding: 18px 14px 25px; font-size: 12px; color: var(--muted,#777); }
+.chat-search-hint {
+  padding: 11px 17px;
+  border-top: 1px solid var(--border,#ddd);
+  font-size: 11px;
+  color: var(--muted,#777);
+}
+@keyframes farloret-dialog-in {
+  from { opacity: 0; transform: translateY(-9px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Width-based desktop transitions. Do not use display:none; it cannot animate. */
+@media(min-width: 761px) {
+  #sidebar, .sidebar {
+    transition: flex-basis 260ms cubic-bezier(.22,1,.36,1),
+      width 260ms cubic-bezier(.22,1,.36,1),
+      opacity 170ms ease, padding 260ms cubic-bezier(.22,1,.36,1),
+      transform 260ms cubic-bezier(.22,1,.36,1), visibility 0s;
+    will-change: flex-basis, transform;
+  }
+  #sidebar.hidden, .sidebar.hidden {
+    display: flex;
+    flex-basis: 0;
+    width: 0;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-25px);
+    transition: flex-basis 260ms cubic-bezier(.22,1,.36,1),
+      width 260ms cubic-bezier(.22,1,.36,1),
+      opacity 170ms ease, padding 260ms cubic-bezier(.22,1,.36,1),
+      transform 260ms cubic-bezier(.22,1,.36,1), visibility 0s linear 260ms;
+  }
+}
+/* Mobile sidebar behaves as an off-canvas drawer. */
+@media(max-width: 760px) {
+  #sidebar, .sidebar {
+    transition: transform 300ms cubic-bezier(.22,1,.36,1), opacity 190ms ease, visibility 0s;
+    transform: translateX(0);
+    opacity: 1;
+  }
+  #sidebar.hidden, .sidebar.hidden {
+    display: flex;
+    transform: translateX(-105%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 300ms cubic-bezier(.22,1,.36,1), opacity 190ms ease, visibility 0s linear 300ms;
+  }
+  .composer { border-radius: 22px; }
+  .composer-toolbar, .composer-foot { gap: 3px; }
+  .composer .model-trigger { max-width: min(142px, 32vw); font-size: 11px; padding: 6px 5px; }
+  .web-search-button { padding: 0 8px; }
+  .web-search-button span { font-size: 11px; }
+  .composer .model-popover { right: -45px; max-width: calc(100vw - 24px); }
+}
+@media(max-width: 390px) {
+  .web-search-button span { display: none; }
+  .composer .model-trigger { max-width: 130px; }
+}
+@media(prefers-reduced-motion: reduce) {
+  .sidebar, #sidebar, #sidebar.hidden, .sidebar.hidden, .web-search-button,
+  .composer-plus, .chat-search-dialog {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+
+/* The self-hosted app previously retained the early rose-tinted prototype. */
+body:not(.dark) { background:#fff; color:#202020; }
+body:not(.dark) #sidebar { background:#f9f9f9; border-color:#ededed; }
+body:not(.dark) #sidebar .new { background:transparent; box-shadow:none; border-color:transparent; color:#292929; }
+body:not(.dark) #sidebar .new:hover { background:#ebebeb; }
+body:not(.dark) #sidebar .brand small, body:not(.dark) #sidebar .section,
+body:not(.dark) #sidebar .foot { color:#868686; }
+body:not(.dark) #sidebar #chats button:hover,
+body:not(.dark) #sidebar #chats button.selected { background:#eaeaea; }
+body:not(.dark) .stage { color:#777; border-color:#e4e4e4; }
+body:not(.dark) .message.user { background:#f3f3f3; }
+body:not(.dark) .message.assistant .role { color:#626262; }
+body:not(.dark) .prompts button { background:#fff; border-color:#e7e7e7; color:#444; }
+body:not(.dark) #composer { border-color:#e4e4e4; background:#fff; }
+body.dark { background:#212121; color:#ededed; }
+body.dark #sidebar { background:#171717; border-color:#353535; }
+body.dark main { background:#212121; }
+body.dark #sidebar .new { background:transparent; box-shadow:none; border-color:transparent; color:#e6e6e6; }
+body.dark #sidebar .new:hover { background:#2c2c2c; }
+body.dark #composer { background:#303030; border-color:#444; }
+body.dark #composer textarea { color:#f0f0f0; }
+body.dark .message.user { background:#343434; }
+body.dark .message.assistant .role { color:#b8b8b8; }
+body.dark .prompts button { background:#303030; border-color:#464646; color:#e8e8e8; }
+#sidebar .search-open { margin:7px 0 2px; width:100%; font-weight:480; }
+#sidebar .search-shortcut { margin-left:auto; font-size:10px; color:#999; font-weight:400; }
+#sidebar .new .ui-icon { flex:none; }
+body:not(.dark) #web-search-note { color:#6c6c6c; }
+.chat-sources { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+.chat-sources-heading { font-size:11px; font-weight:650; color:var(--muted,#777); flex-basis:100%; }
+.chat-sources a {
+  display:inline-block;
+  padding:6px 9px;
+  max-width:230px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  border-radius:999px;
+  border:1px solid var(--border,#e0e0e0);
+  color:var(--text,#333);
+  font-size:11px;
+  text-decoration:none;
+}
+.chat-sources a:hover { background:var(--hover,#eee); }
+@media(max-width:760px) {
+  #sidebar .search-shortcut { display:none; }
+}
