@@ -18,13 +18,13 @@ export function createChat(id = newChatId(), firstMessage = '', now = Date.now()
   };
 }
 
-export function appendUserMessage(chat, text, now = Date.now()) {
+export function appendUserMessage(chat, text, now = Date.now(), attachments = []) {
   const trimmed = String(text).trim();
-  if (!trimmed) return chat;
+  if (!trimmed && !attachments.length) return chat;
   return {
     ...chat,
     updatedAt: now,
-    messages: [...chat.messages, {role:'user', content:trimmed}].slice(-100)
+    messages: [...chat.messages, {role:'user', content:trimmed, ...(attachments.length?{attachments:attachments.map(({id,name,type,size})=>({id,name,type,size}))}:{})}].slice(-100)
   };
 }
 
@@ -54,7 +54,7 @@ export function parseChats(raw) {
           updatedAt: Number.isFinite(chat.updatedAt) ? chat.updatedAt : 0,
           messages: Array.isArray(chat.messages)
             ? chat.messages.filter(m => m && m.role === 'user' && typeof m.content === 'string')
-                .slice(-100).map(m => ({role:'user',content:m.content.slice(0,20000)}))
+                .slice(-100).map(m => ({role:'user',content:m.content.slice(0,20000),...(Array.isArray(m.attachments)?{attachments:m.attachments.filter(a=>a && typeof a.id==='string' && typeof a.name==='string').slice(0,5).map(a=>({id:a.id,name:a.name.slice(0,180),size:Number(a.size)||0,type:String(a.type||'')}))}:{})}))
             : []
         };
       });

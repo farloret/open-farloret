@@ -11,6 +11,9 @@ on:
       - 'public/composer-toolbar.css'
       - 'public/model-picker.css'
       - 'public/model-picker.js'
+      - 'public/attachments.js'
+      - 'public/chat-view.js'
+      - 'public/attachment-chat.css'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -41,6 +44,8 @@ jobs:
           node --check public/chat-id.js
           node --check public/chat-search.js
           node --check public/app.js
+          node --check public/attachments.js
+          node --check public/chat-view.js
           node --check server.js
           npm test
       - name: Assemble static site
@@ -50,6 +55,7 @@ jobs:
           cp pages/index.html pages/demo.js pages/demo-state.mjs pages/demo.css _site/
           cp public/model-picker.js public/model-picker.css _site/
           cp public/chat-id.js public/chat-search.js public/composer-toolbar.css _site/
+          cp public/attachments.js public/chat-view.js public/attachment-chat.css _site/
           # Pages moves the preview to the root; resolve the UUID module there.
           sed -i "s#../public/chat-id.js#./chat-id.js#g" _site/demo-state.mjs
           touch _site/.nojekyll
@@ -61,6 +67,9 @@ jobs:
           test -s _site/chat-id.js
           test -s _site/chat-search.js
           test -s _site/composer-toolbar.css
+          test -s _site/attachments.js
+          test -s _site/chat-view.js
+          test -s _site/attachment-chat.css
           ! grep -F "../public/chat-id.js" _site/demo-state.mjs
           test -s _site/assets/scarlet-logo.png
           test -s _site/assets/ui-icons.svg

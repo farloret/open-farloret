@@ -4,6 +4,7 @@ import { readFile, mkdir, writeFile, rename } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isChatId } from './public/chat-id.js';
+import {validatedAttachments} from './public/attachments.js';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3000);
@@ -20,6 +21,8 @@ const ASSETS = {
   '/styles.css': 'styles.css', '/model-picker.js': 'model-picker.js',
   '/model-picker.css': 'model-picker.css', '/composer-toolbar.css': 'composer-toolbar.css',
   '/chat-id.js': 'chat-id.js', '/chat-search.js': 'chat-search.js',
+  '/attachments.js': 'attachments.js', '/chat-view.js': 'chat-view.js',
+  '/attachment-chat.css': 'attachment-chat.css',
   '/assets/scarlet-logo.png': 'assets/scarlet-logo.png',
   '/assets/ui-icons.svg': 'assets/ui-icons.svg'
 };
@@ -39,7 +42,8 @@ async function load() {
           m && ['user','assistant'].includes(m.role) && typeof m.content === 'string'
         ).slice(-100).map(m => ({
           role: m.role, content: m.content.slice(0,50000),
-          ...(m.sources && Array.isArray(m.sources) ? { sources: safeSources(m.sources) } : {})
+          ...(m.sources && Array.isArray(m.sources) ? { sources: safeSources(m.sources) } : {}),
+          ...(Array.isArray(m.attachments)?{attachments:validatedAttachments(m.attachments)}:{})
         }))
       });
     }
@@ -83,7 +87,7 @@ async function requestJSON(req) {
   let raw = '';
   for await (const chunk of req) {
     raw += chunk;
-    if (raw.length > 2_000_000) throw new Error('Request too large');
+    if (raw.length > 16_000_000) throw new Error('Request too large');
   }
   return JSON.parse(raw || '{}');
 }
@@ -118,6 +122,19 @@ async function braveSearch(query) {
   return safeSources(Array.isArray(json?.web?.results) ? json.web.results : []);
 }
 
+function validContent(value) {
+  if (typeof value==='string') return value.length<=100_000;
+  if (!Array.isArray(value) || value.length===0 || value.length>8) return false;
+  return value.every(part=>{
+    if (!part || typeof part!=='object') return false;
+    if (part.type==='text') return typeof part.text==='string' && part.text.length<=100_000;
+    if (part.type!=='image_url') return false;
+    const url=part.image_url?.url;
+    return typeof url==='string' && url.length<=4_200_000 &&
+      /^data:image\/(png|jpeg|webp|gif);base64,[a-zA-Z0-9+/]+={0,2}$/.test(url);
+  });
+}
+
 await load();
 
 const server = http.createServer(async (req,res) => {
@@ -125,7 +142,7 @@ const server = http.createServer(async (req,res) => {
   res.setHeader('Referrer-Policy','no-referrer');
   res.setHeader('X-Frame-Options','DENY');
   res.setHeader('Content-Security-Policy',
-    "default-src 'self'; img-src 'self' data:; connect-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'");
+    "default-src 'self'; img-src 'self' data: blob:; frame-src 'self' blob:; connect-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'");
   const url = new URL(req.url || '/', 'http://localhost');
   try {
     if (url.pathname.startsWith('/api/')) {
@@ -165,12 +182,21 @@ const server = http.createServer(async (req,res) => {
         if (req.method === 'PATCH') {
           const changes = await requestJSON(req);
           if (typeof changes.title === 'string') chat.title = changes.title.trim().slice(0,120) || chat.title;
-          if (Array.isArray(changes.messages)) chat.messages = changes.messages.filter(m =>
-            m && ['user','assistant'].includes(m.role) && typeof m.content === 'string'
-          ).slice(-100).map(m => ({
-            role:m.role,content:m.content.slice(0,50000),
-            ...(Array.isArray(m.sources)?{sources:safeSources(m.sources)}:{})
-          }));
+          if (Array.isArray(changes.messages)) {
+            if (changes.messages.length>100) return respond(res,400,{error:'Too many messages'});
+            for(const m of changes.messages){
+              if(!m || !['user','assistant'].includes(m.role) || typeof m.content!=='string')
+                return respond(res,400,{error:'Invalid message'});
+              if(Array.isArray(m.attachments) && m.attachments.length &&
+                  validatedAttachments(m.attachments).length!==m.attachments.length)
+                return respond(res,400,{error:'Invalid or oversized attachments'});
+            }
+            chat.messages=changes.messages.map(m=>({
+              role:m.role,content:m.content.slice(0,50000),
+              ...(Array.isArray(m.sources)?{sources:safeSources(m.sources)}:{}),
+              ...(Array.isArray(m.attachments)?{attachments:validatedAttachments(m.attachments)}:{})
+            }));
+          }
           chat.updatedAt = Date.now();
           await persist();
           return respond(res,200,{chat});
@@ -198,7 +224,7 @@ const server = http.createServer(async (req,res) => {
         if (typeof input.model !== 'string' || !Array.isArray(input.messages) ||
             input.messages.length > 100 || input.model.length > 300 ||
             !input.messages.every(m => m && ['system','user','assistant'].includes(m.role) &&
-              typeof m.content === 'string' && m.content.length <= 100_000)) {
+              validContent(m.content))) {
           return respond(res,400,{error:'Invalid chat payload'});
         }
         const result = await fetch(API_BASE+'/chat/completions',{

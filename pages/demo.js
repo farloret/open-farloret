@@ -4,6 +4,8 @@ import {
 import { createModelPicker } from './model-picker.js';
 import { createChatSearch } from './chat-search.js';
 import { newChatId, chatIdFromLocation, isChatId } from './chat-id.js';
+import { createAttachmentController,makeAttachmentInspector,storeAttachments,attachmentMeta } from './attachments.js';
+import { createChatView } from './chat-view.js';
 
 // Deliberately frontend-only: the public preview NEVER calls an AI or backend.
 const $ = id => document.getElementById(id);
@@ -15,6 +17,8 @@ const ICON_NAMES = new Set(['star', 'star-filled', 'edit', 'trash']);
 let chats = [];
 let currentId = null;
 let chatSearch = null;
+let uploader = null;
+let viewer = null;
 
 function saved(key) {
   try { return localStorage.getItem(key); } catch { return null; }
@@ -115,25 +119,12 @@ function renderSidebar() {
   }
 }
 function renderConversation() {
-  const chat = currentChat();
-  const messages = chat ? chat.messages : [];
-  const empty = messages.length === 0;
-  $('main').classList.toggle('is-empty', empty);
-  $('welcome').hidden = !empty;
-  $('silent-note').hidden = empty;
-  $('messages').replaceChildren();
-
-  for (const message of messages) {
-    const article = document.createElement('article');
-    article.className = 'message user';
-    const bubble = document.createElement('div');
-    bubble.className = 'content';
-    // Never use innerHTML with stored user messages.
-    bubble.textContent = message.content;
-    article.append(bubble);
-    $('messages').append(article);
-  }
-  if (!empty) $('conversation').scrollTop = $('conversation').scrollHeight;
+  const messages=currentChat()?.messages||[];
+  const empty=messages.length===0;
+  $('main').classList.toggle('is-empty',empty);
+  $('welcome').hidden=!empty;
+  $('silent-note').hidden=empty;
+  viewer.render(messages);
 }
 function render() { renderSidebar(); renderConversation(); }
 function setSidebarOpen(open) {
@@ -163,6 +154,7 @@ function newChat() {
   currentId = null;
   setChatLocation(null);
   $('prompt').value = '';
+  uploader?.clear();
   updateComposer();
   render();
   hideSidebarOnMobile();
@@ -180,26 +172,26 @@ function updateComposer() {
   const input = $('prompt');
   input.style.height = 'auto';
   input.style.height = Math.min(input.scrollHeight, 220) + 'px';
-  $('send').disabled = !input.value.trim();
+  $('send').disabled = !input.value.trim() && !uploader?.count;
 }
-function sendMessage() {
-  const text = $('prompt').value.trim();
-  if (!text) return;
-  let chat = currentChat();
-  if (!chat) {
-    const id = newChatId();
-    chat = createChat(id, text);
-    chats.push(chat);
-    currentId = id;
-    setChatLocation(id);
+async function sendMessage() {
+  const text=$('prompt').value.trim();
+  await uploader.whenReady();
+  if(!text && !uploader.count)return;
+  const attached=await uploader.take();
+  try{if(attached.length)await storeAttachments(attached);}
+  catch(error){inform('Files available this session, but browser storage failed: '+error.message);}
+  let chat=currentChat();
+  if(!chat){
+    const id=newChatId();
+    chat=createChat(id,text||attached[0]?.name||'Attachment');
+    chats.push(chat);currentId=id;setChatLocation(id);
   }
-  const index = chats.findIndex(item => item.id === currentId);
-  chats[index] = appendUserMessage(chat, text);
-  $('prompt').value = '';
-  updateComposer();
-  save();
-  render();
-  // Blank model: no fetch, no generated assistant message, no placeholder answer.
+  const index=chats.findIndex(item=>item.id===currentId);
+  chats[index]=appendUserMessage(chat,text,Date.now(),attached.map(attachmentMeta));
+  $('prompt').value='';
+  updateComposer();save();render();
+  // The blank model never calls AI or invents a response.
   $('prompt').focus();
 }
 function exportChats() {
@@ -221,6 +213,24 @@ function setTheme(isDark) {
   try { localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); } catch {}
 }
 function init() {
+  const inspector=makeAttachmentInspector('./assets/ui-icons.svg');
+  uploader=createAttachmentController({
+    composer:$('composer'),trigger:$('compose-plus'),menu:$('attachment-menu'),
+    fileInput:$('file-input'),imageInput:$('image-input'),preview:$('pending-attachments'),
+    dropOverlay:$('file-drop-overlay'),sprite:'./assets/ui-icons.svg',inspector,
+    onChange:()=>updateComposer(),onError:inform
+  });
+  viewer=createChatView({
+    root:$('messages'),logo:'./assets/scarlet-logo.png',sprite:'./assets/ui-icons.svg',inspector,
+    onError:inform,
+    onEdit:async(index,text)=>{
+      const chat=currentChat();if(!chat)return;
+      chat.messages[index].content=text;
+      chat.messages=chat.messages.slice(0,index+1);
+      chat.updatedAt=Date.now();
+      save();render();
+    }
+  });
   createModelPicker({
     root: $('model-picker'),
     spriteUrl: './assets/ui-icons.svg',
@@ -246,7 +256,6 @@ function init() {
   setTheme(saved(THEME_KEY) === 'dark');
   setSidebarOpen(!window.matchMedia(MOBILE).matches);
   $('new').addEventListener('click', newChat);
-  $('compose-plus').addEventListener('click', newChat);
   $('web-search-toggle').addEventListener('click', toggleWebPreview);
   $('expand').addEventListener('click', () => setSidebarOpen(true));
   $('collapse').addEventListener('click', () => setSidebarOpen(false));

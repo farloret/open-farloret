@@ -22,6 +22,16 @@ BRAVE_SEARCH_API_KEY=your-key npm start
 
 When enabled, Farloret queries Brave server-side, displays the source links near the response, and passes result excerpts to the model as untrusted context. The key remains on the server. Without a key, the Search button explains how to enable the feature rather than pretending to search.
 
+## Scarlet 0.3: Attachments and message controls
+
+The **+** in the composer opens a menu for **Upload file** or **Upload image**, and you can drag files onto the window or paste an image. A pending-attachments tray supports previews, removal, full-size image previews, text previews, PDF previews where supported, and downloading. Limits are 5 files per message, 3 MB per file, and 10 MB total. The browser demo stores attachment bytes in IndexedDB and only metadata in localStorage.
+
+The self-hosted Node app stores attachment content with each conversation in `.data/chats.json`. Images are sent to vision-capable OpenAI-compatible models in the `image_url` format; text files are provided as text context; other file types are retained and previewable but are **not parsed by the AI**. Providers that don't support vision can reject image requests.
+
+User messages have **Edit** controls; real AI messages have **Regenerate**, **Copy**, and **Read aloud**. Read aloud uses the browser's speech synthesis API and is available only where the browser supports it. Editing an earlier message branches from that point and regenerates the answer.
+
+The interactive accent color is **#B01A00**, sampled directly from the original Scarlet logo. The logo itself remains unmodified, and the backgrounds remain neutral.
+
 ## Custom model selector
 
 Both the public preview and Node app use an original in-page model menu instead of the browser's native select popup. Keyboard controls include arrows, Home/End, Enter/Space, Escape, Tab and type-to-search. Model names are rendered as text, and the self-hosted app still discovers live provider models. The public preview contains only the silent Blank model.

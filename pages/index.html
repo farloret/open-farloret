@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./demo.css">
   <link rel="stylesheet" href="./model-picker.css">
   <link rel="stylesheet" href="./composer-toolbar.css">
+  <link rel="stylesheet" href="./attachment-chat.css">
 </head>
 <body>
 <div class="app">
@@ -71,9 +72,9 @@
       <div class="bottom">
         <form id="composer" class="composer">
           <label class="sr-only" for="prompt">Message the blank model</label>
-          <textarea id="prompt" rows="1" maxlength="20000" placeholder="Message Blank" aria-label="Message the blank model"></textarea>
+          <div id="pending-attachments" class="attachment-tray" hidden></div><textarea id="prompt" rows="1" maxlength="20000" placeholder="Message Blank" aria-label="Message the blank model"></textarea>
           <div class="composer-toolbar">
-            <button type="button" id="compose-plus" class="composer-plus" aria-label="New chat" title="New chat"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#plus"></use></svg></button>
+            <div class="upload-anchor"><button type="button" id="compose-plus" class="composer-plus" aria-label="Add attachment" title="Add attachment" aria-expanded="false" aria-controls="attachment-menu"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="./assets/ui-icons.svg#plus"></use></svg></button><div id="attachment-menu" class="attachment-menu" hidden><button type="button" data-pick-file><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="./assets/ui-icons.svg#file"></use></svg><span>Upload file</span></button><button type="button" data-pick-image><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="./assets/ui-icons.svg#image"></use></svg><span>Upload image</span></button></div><input id="file-input" type="file" multiple hidden><input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden></div>
             <span class="composer-spacer"></span>
             <button type="button" id="web-search-toggle" class="web-search-button" aria-pressed="false" title="Preview Web Search mode"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#globe"></use></svg><span>Search</span></button>
             <div class="model-picker" id="model-picker">
@@ -91,7 +92,7 @@
           </div>
           <p id="web-search-note" role="status" hidden></p>
         </form>
-        <p class="disclaimer">UI demo only. No AI responses or server requests.</p>
+        <p class="disclaimer">Demo · Attachments stay in this browser · Blank model never responds.</p>
         <p id="notice" class="notice" role="status" aria-live="polite"></p>
       </div>
       <div id="suggestions" class="suggestions" aria-label="Example prompts">
@@ -102,7 +103,7 @@
     </div>
   </main>
 </div>
-<dialog id="search-dialog" class="chat-search-dialog" aria-labelledby="chat-search-heading">
+<div id="file-drop-overlay" class="file-drop-overlay" hidden>Drop files or images to attach</div><dialog id="search-dialog" class="chat-search-dialog" aria-labelledby="chat-search-heading">
   <div class="chat-search-head">
     <strong id="chat-search-heading">Search conversations</strong>
     <button id="search-close" class="chat-search-close" type="button" aria-label="Close conversation search"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="./assets/ui-icons.svg#close"></use></svg></button>

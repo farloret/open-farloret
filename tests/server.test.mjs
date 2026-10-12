@@ -79,11 +79,18 @@ test('Node server uses persistent UUID chat IDs and searches message text after 
     assert.ok(isChatId(id));
     assert.equal((await req(origin,'/api/chats/not-a-uuid')).status,404);
 
+    const attachment = {id:crypto.randomUUID(),name:'notes.txt',type:'text/plain',size:5,
+      dataUrl:'data:text/plain;base64,SGVsbG8='};
     const saved=await req(origin,'/api/chats/'+id,'PATCH',{
       title:'First chat',
-      messages:[{role:'user',content:'I want to understand quantum entanglement'}]
+      messages:[{role:'user',content:'I want to understand quantum entanglement',attachments:[attachment]}]
     });
     assert.equal(saved.status,200);
+    assert.deepEqual(saved.data.chat.messages[0].attachments,[attachment]);
+    const invalid=await req(origin,'/api/chats/'+id,'PATCH',{messages:[
+      {role:'user',content:'oops',attachments:[{...attachment,id:'not-uuid'}]}
+    ]});
+    assert.equal(invalid.status,400);
 
     const results=await req(origin,'/api/chats/search?q=ENTANGLEMENT');
     assert.equal(results.status,200);
@@ -98,6 +105,9 @@ test('Node server uses persistent UUID chat IDs and searches message text after 
     assert.equal((await fetch(origin+'/composer-toolbar.css')).status,200);
     assert.equal((await fetch(origin+'/chat-search.js')).status,200);
     assert.equal((await fetch(origin+'/chat-id.js')).status,200);
+    assert.equal((await fetch(origin+'/attachments.js')).status,200);
+    assert.equal((await fetch(origin+'/chat-view.js')).status,200);
+    assert.equal((await fetch(origin+'/attachment-chat.css')).status,200);
     assert.ok(JSON.parse(await readFile(join(dir,'chats.json'),'utf8')).some(c=>c.id===id));
 
     await stop(active.child);
@@ -106,6 +116,7 @@ test('Node server uses persistent UUID chat IDs and searches message text after 
     assert.equal(loaded.status,200);
     assert.equal(loaded.data.chat.id,id);
     assert.equal(loaded.data.chat.messages[0].content,'I want to understand quantum entanglement');
+    assert.deepEqual(loaded.data.chat.messages[0].attachments,[attachment]);
     assert.deepEqual((await req(active.origin,'/api/chats/search?q=quantum')).data.chats.map(x=>x.id),[id]);
     assert.equal((await req(active.origin,'/api/chats/'+id,'DELETE')).status,200);
     assert.equal((await req(active.origin,'/api/chats/'+id)).status,404);

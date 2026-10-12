@@ -100,7 +100,7 @@ test('consistent custom icon family serves both public and self-hosted interface
   const dynamic = await readFile(new URL('./demo.js', import.meta.url), 'utf8');
   const server = await readFile(new URL('../server.js', import.meta.url), 'utf8');
   const ids = ['panel-hide','panel-show','compose','search','close','theme-moon','theme-sun',
-    'download','trash','chevron-down','send','open-arrow','edit','star','star-filled','info','model','check','plus','globe'];
+    'download','trash','chevron-down','send','open-arrow','edit','star','star-filled','info','model','check','plus','globe','file','image','copy','volume','regenerate'];
   assert.match(sprite, /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg">/);
   assert.equal((sprite.match(/<symbol id=/g)||[]).length, ids.length);
   for (const id of ids) {
@@ -259,4 +259,67 @@ test('public Blank-model search control never performs a real web request', asyn
   assert.match(server,/BRAVE_SEARCH_API_KEY/);
   assert.match(server,/X-Subscription-Token/);
   assert.match(server,/persist\(\)/);
+});
+
+
+test('attachment validation enforces size, format, and secure UUID identifiers', async () => {
+  const { newChatId } = await import('../public/chat-id.js');
+  const { validatedAttachment,validatedAttachments,attachmentMeta,fileSizeLabel,MAX_FILE_BYTES } =
+    await import('../public/attachments.js');
+  const file={id:newChatId(),name:'notes.txt',type:'text/plain',size:5,
+    dataUrl:'data:text/plain;base64,SGVsbG8='};
+  assert.deepEqual(validatedAttachment(file),file);
+  assert.equal(validatedAttachments([file]).length,1);
+  assert.deepEqual(attachmentMeta(file),{id:file.id,name:file.name,type:file.type,size:file.size});
+  assert.equal(fileSizeLabel(1024),'1.0 KB');
+  assert.equal(validatedAttachment({...file,id:'1234'}),null);
+  assert.equal(validatedAttachment({...file,size:MAX_FILE_BYTES+1}),null);
+  assert.equal(validatedAttachment({...file,dataUrl:'data:text/html;base64,SGVsbG8='}),null);
+  assert.equal(validatedAttachment({...file,dataUrl:'data:text/plain;base64,<script>'}),null);
+  assert.deepEqual(validatedAttachments(new Array(6).fill(file)),[]);
+});
+
+test('upload menu, file pickers, drag overlay, and previews are present in both apps',async()=>{
+  const demo=await readFile(new URL('./index.html',import.meta.url),'utf8');
+  const local=await readFile(new URL('../public/index.html',import.meta.url),'utf8');
+  for(const html of [demo,local]){
+    assert.match(html,/id="attachment-menu"[^>]*hidden/);
+    assert.match(html,/data-pick-file/);
+    assert.match(html,/data-pick-image/);
+    assert.match(html,/id="file-input" type="file" multiple/);
+    assert.match(html,/id="image-input" type="file"/);
+    assert.match(html,/id="pending-attachments"/);
+    assert.match(html,/id="file-drop-overlay"/);
+    assert.match(html,/attachment-chat\.css/);
+  }
+  const kit=await readFile(new URL('../public/attachments.js',import.meta.url),'utf8');
+  assert.match(kit,/dataTransfer\.files/);
+  assert.match(kit,/clipboardData\?\.files/);
+  assert.match(kit,/FileReader/);
+  assert.match(kit,/URL\.createObjectURL/);
+  assert.match(kit,/indexedDB\.open/);
+  assert.match(kit,/attachment-inspector-image/);
+  assert.match(kit,/attachment-inspector-pdf/);
+  const demoSource=await readFile(new URL('./demo.js',import.meta.url),'utf8');
+  assert.match(demoSource,/storeAttachments/);
+  assert.match(demoSource,/createAttachmentController/);
+  assert.match(demoSource,/viewer\.render/);
+  assert.doesNotMatch(demoSource,/\bfetch\s*\(/);
+});
+
+test('reply actions and logo-sampled Scarlet accent are wired up',async()=>{
+  const viewer=await readFile(new URL('../public/chat-view.js',import.meta.url),'utf8');
+  const local=await readFile(new URL('../public/app.js',import.meta.url),'utf8');
+  const shared=await readFile(new URL('../public/attachment-chat.css',import.meta.url),'utf8');
+  assert.match(viewer,/Regenerate/);
+  assert.match(viewer,/Read aloud/);
+  assert.match(viewer,/navigator\.clipboard\.writeText/);
+  assert.match(viewer,/onEdit/);
+  assert.match(viewer,/renderAssistantText/);
+  assert.match(local,/async function regenerate/);
+  assert.match(local,/async function editMessage/);
+  assert.match(local,/image_url/);
+  assert.match(local,/saveMessages/);
+  assert.match(shared,/#b01a00/i);
+  assert.doesNotMatch(shared,/#5cd575|#49c66a/i);
 });
