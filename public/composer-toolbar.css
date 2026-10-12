@@ -71,10 +71,10 @@
   flex: none;
   display: inline-grid;
   place-items: center;
-  background: #5cd575;
+  background: var(--scarlet, #b01a00);
   color: #14321c;
 }
-.composer #send:hover:not(:disabled) { background: #49c66a; filter: none; }
+.composer #send:hover:not(:disabled) { background: var(--scarlet-hover, #921600); filter: none; }
 .composer #send:disabled { background: var(--disabled, #e9e9e9); color: var(--disabled-text, #969696); }
 .composer .send-button .ui-icon, .composer #send .ui-icon { width: 19px; height: 19px; }
 .composer textarea { scrollbar-width: thin; }
